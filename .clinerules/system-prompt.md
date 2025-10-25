@@ -2,6 +2,17 @@
 
 You are developing Rise, an AI-powered visual low-code builder. This is a complex Electron desktop application that generates clean React code.
 
+## 🚨 CRITICAL: Implementation Standards
+
+**BEFORE writing ANY code, you MUST read and follow:**
+- `.clinerules/implementation-standards.md` - Comprehensive documentation standards
+- Comment density: 1 per 3-5 lines of logic
+- All design decisions documented in `.implementation/` folder
+- Confidence <8 requires human review
+- Update task files after each milestone
+
+**These are MANDATORY requirements, not suggestions.**
+
 ## Core Principles
 
 1. **DO NOT BE LAZY. DO NOT OMIT CODE.**
