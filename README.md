@@ -75,6 +75,14 @@ Rise bridges the gap between AI-assisted coding (like Replit/v0) and visual low-
 - [**MVP Roadmap**](./docs/MVP_ROADMAP.md) - Phased features and development timeline
 - [**Getting Started**](./docs/GETTING_STARTED.md) - Setup and first run
 
+### 📊 Best Practices & Quality
+- [**Performance Strategy**](./docs/PERFORMANCE.md) - Optimization techniques and benchmarks
+- [**Security Model**](./docs/SECURITY.md) - Two-tier security and expression sandboxing
+- [**Testing Strategy**](./docs/TESTING_STRATEGY.md) - Comprehensive testing approach
+
+### 📚 Learning Resources
+- [**Examples**](./docs/EXAMPLES.md) - Real-world component examples and patterns
+
 **📚 [Complete Documentation Index](./DOCUMENTATION_INDEX.md)** - Navigate all docs efficiently
 
 ---

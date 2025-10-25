@@ -22,8 +22,14 @@ Welcome to the Visual Low-Code Builder documentation! This guide will help you n
 9. **[PLUGIN_SYSTEM.md](./docs/PLUGIN_SYSTEM.md)** - Framework adapter interface
 10. **[BIDIRECTIONAL_SYNC.md](./docs/BIDIRECTIONAL_SYNC.md)** - Code-to-manifest reverse engineering (stretch goal)
 
-### Planning
-11. **[MVP_ROADMAP.md](./docs/MVP_ROADMAP.md)** - Development phases, timeline, and resource allocation
+### Development & Best Practices
+11. **[PERFORMANCE.md](./docs/PERFORMANCE.md)** - Performance optimization strategy and benchmarks
+12. **[SECURITY.md](./docs/SECURITY.md)** - Two-tier security model and expression sandboxing
+13. **[TESTING_STRATEGY.md](./docs/TESTING_STRATEGY.md)** - Comprehensive testing approach and quality assurance
+
+### Planning & Learning
+14. **[MVP_ROADMAP.md](./docs/MVP_ROADMAP.md)** - Development phases, timeline, and resource allocation
+15. **[EXAMPLES.md](./docs/EXAMPLES.md)** - Real-world component examples and code patterns
 
 ---
 
@@ -48,8 +54,11 @@ Welcome to the Visual Low-Code Builder documentation! This guide will help you n
 4. FILE_STRUCTURE_SPEC.md (project layout)
 5. DATA_FLOW.md (how data works)
 6. EXPRESSION_SYSTEM.md (dynamic properties)
+7. SECURITY.md (security model)
+8. TESTING_STRATEGY.md (testing approach)
+9. EXAMPLES.md (code patterns)
 
-**Focus on**: Technical implementation, code examples, best practices
+**Focus on**: Technical implementation, code examples, best practices, security, testing
 
 ---
 
@@ -89,7 +98,11 @@ Welcome to the Visual Low-Code Builder documentation! This guide will help you n
 | DEBUGGER_DESIGN.md | ✅ Complete | 100% |
 | PLUGIN_SYSTEM.md | ✅ Complete | 100% |
 | BIDIRECTIONAL_SYNC.md | ✅ Complete | 100% |
+| PERFORMANCE.md | ✅ Complete | 100% |
+| SECURITY.md | ✅ Complete | 100% |
+| TESTING_STRATEGY.md | ✅ Complete | 100% |
 | MVP_ROADMAP.md | ✅ Complete | 100% |
+| EXAMPLES.md | ✅ Complete | 100% |
 | **COMPONENT_SCHEMA.md** | ✅ **COMPLETE** | 100% |
 
 ---
@@ -146,6 +159,18 @@ Welcome to the Visual Low-Code Builder documentation! This guide will help you n
 **...know what to build first?**
 → [MVP_ROADMAP.md](./docs/MVP_ROADMAP.md) - Phase breakdown
 
+**...understand security and sandboxing?**
+→ [SECURITY.md](./docs/SECURITY.md) - Two-tier security model
+
+**...optimize performance?**
+→ [PERFORMANCE.md](./docs/PERFORMANCE.md) - Performance strategy and benchmarks
+
+**...set up testing?**
+→ [TESTING_STRATEGY.md](./docs/TESTING_STRATEGY.md) - Testing approach and tools
+
+**...see real-world examples?**
+→ [EXAMPLES.md](./docs/EXAMPLES.md) - Component examples and patterns
+
 ---
 
 ## 📝 Key Decisions Documented
@@ -182,12 +207,12 @@ Welcome to the Visual Low-Code Builder documentation! This guide will help you n
 
 ## 📊 Documentation Statistics
 
-- **Total Documents**: 11
-- **Total Words**: ~65,000
-- **Code Examples**: 200+
-- **Diagrams**: 35+
-- **Tables**: 30+
-- **Schema Examples**: 50+
+- **Total Documents**: 15
+- **Total Words**: ~95,000
+- **Code Examples**: 350+
+- **Diagrams**: 40+
+- **Tables**: 45+
+- **Schema Examples**: 75+
 
 ---
 

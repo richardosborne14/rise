@@ -1,18 +1,45 @@
-# MVP Roadmap
+# MVP Roadmap (Revised)
 
 ## Vision & Scope
 
-**Goal**: Build a functional Electron-based visual low-code builder that can generate React components with AI assistance, providing a solid foundation for future expansion.
+**Goal**: Build a focused visual low-code builder that nails the core experience: visual component editing + AI assistance + clean React code generation. Architecture designed for future plugin extensibility without building the full system yet.
 
-**Target MVP Timeline**: 12-16 weeks (with AI assistance via Cline/Claude)
+**Target MVP Timeline**: 8-10 weeks (with AI assistance via Cline/Claude)
 
 **Success Criteria**:
-- ✅ Can create new React project
-- ✅ Can add/edit components visually
-- ✅ Can set properties and create connections
-- ✅ Generates clean, working React code
-- ✅ Basic preview functionality
-- ✅ AI assists with component generation
+- ✅ Can create new React project with standard structure
+- ✅ Visual component tree editing (add/remove/reorder)
+- ✅ Property editing with expressions + custom functions
+- ✅ AI-powered component generation and suggestions
+- ✅ Live preview with hot reload
+- ✅ Clean, documented React code output
+- ✅ Plugin-ready architecture (interfaces defined, not implemented)
+
+---
+
+## Core Philosophy: Focused + Future-Ready
+
+### What We're Building (MVP)
+- **Visual Component Editor**: Intuitive tree-based component management
+- **Smart Property System**: Simple expressions + powerful custom functions
+- **AI Copilot**: Generation, suggestions, and code review
+- **Clean Code Output**: Standard React that any developer can extend
+- **Plugin-Ready Architecture**: Interfaces defined for future extensibility
+
+### What We're NOT Building (Yet)
+- ❌ Full plugin system implementation
+- ❌ Multiple framework support  
+- ❌ Step-through debugger
+- ❌ Bidirectional sync (code → manifest)
+- ❌ Visual connection editor
+- ❌ Complex state management UI
+- ❌ Advanced deployment pipelines
+
+### Why This Scope Works
+1. **Faster Time to Market**: Core value in 8-10 weeks vs 16+ weeks
+2. **Validated Learning**: Get user feedback on core experience first
+3. **Solid Foundation**: Architecture ready for planned expansions
+4. **AI Advantage**: Leverage current AI hype with practical tooling
 
 ---
 
@@ -20,603 +47,295 @@
 
 ### AI vs Human Split
 
-**AI/Cline Can Handle (80% of MVP)**:
-- ✅ Electron app boilerplate and setup
-- ✅ Basic React UI components (panels, trees, forms)
+**AI/Cline Can Handle (85% of MVP)**:
+- ✅ Electron app boilerplate and UI components
+- ✅ React manifest management (CRUD operations)
+- ✅ Basic code generation (template-based)
+- ✅ File system operations and project scaffolding
+- ✅ Expression parsing and validation
 - ✅ Monaco editor integration
-- ✅ File system operations (read/write/watch)
-- ✅ JSON manifest management (CRUD operations)
-- ✅ Simple code generation (template-based)
-- ✅ Vite project scaffolding
-- ✅ Basic IPC communication
-- ✅ UI styling with Tailwind
-- ✅ Form validation and state management
+- ✅ AI API integration (Claude/OpenAI)
+- ✅ Preview iframe and hot reload
 
-**Human Developer Needed (20% of MVP)**:
-- 🔨 Complex AST parsing (for bidirectional sync - post-MVP)
-- 🔨 Advanced debugging runtime architecture
-- 🔨 Performance optimization for large projects
-- 🔨 Robust error handling edge cases
-- 🔨 Plugin system architecture decisions
-- 🔨 Security considerations and review
-- 🔨 UX refinement and polish
-- 🔨 Testing strategy and implementation
-
-**Strategy**: Start with AI doing bulk of implementation, bring in human developer for architectural reviews and complex features.
+**Human Developer Needed (15% of MVP)**:
+- 🔨 Architecture review and plugin interface design
+- 🔨 Security implementation for custom functions
+- 🔨 Performance optimization and testing strategy
+- 🔨 UX polish and accessibility
+- 🔨 Complex expression sandboxing
 
 ---
 
-## Phase 1: Foundation (Weeks 1-3)
+## Phase 1: Foundation (Weeks 1-2)
 
 ### Goals
 - Working Electron app shell
 - Basic UI layout
-- Project creation and loading
+- Project creation and manifest management
 
 ### Features
 
 #### 1.1 Electron App Setup
-**Status**: Can be done with AI
-**Estimate**: 3-4 days
+**Estimate**: 3 days with AI
 
-- [ ] Electron boilerplate with React
-- [ ] Main/renderer process structure
-- [ ] IPC communication setup
-- [ ] Window management (resize, minimize, close)
-- [ ] Menu bar and shortcuts
+- [ ] Electron + React boilerplate with TypeScript
+- [ ] Three-panel layout (Tree | Preview | Properties)
+- [ ] IPC communication structure
+- [ ] Basic window management and menus
 
-**Tools**: Cline + Electron Forge
+#### 1.2 Project Management
+**Estimate**: 3 days with AI  
 
----
+- [ ] Create new React/Vite project
+- [ ] Generate `.lowcode/` metadata structure
+- [ ] Basic manifest.json CRUD operations
+- [ ] Project loading and recent projects list
+- [ ] File watcher setup (for hot reload)
 
-#### 1.2 Basic UI Layout
-**Status**: Can be done with AI
-**Estimate**: 4-5 days
+#### 1.3 Component Tree UI
+**Estimate**: 4 days with AI
 
-- [ ] Three-panel layout (Navigator | Editor | Properties)
-- [ ] Resizable panels
-- [ ] Tab system for Editor panel
-- [ ] Toolbar with basic actions
-- [ ] Status bar
+- [ ] Tree view with react-arborist
+- [ ] Add/remove/reorder components
+- [ ] Component selection and highlighting
+- [ ] Context menu (duplicate, delete, etc.)
+- [ ] Basic component types (div, button, text, etc.)
 
-**Tools**: Cline + React + Tailwind
-
----
-
-#### 1.3 Project Management
-**Status**: Can be done with AI
-**Estimate**: 4-5 days
-
-- [ ] Create new project wizard
-- [ ] Framework selection (React only for MVP)
-- [ ] Project templates
-- [ ] Load existing project
-- [ ] Recent projects list
-- [ ] Project settings panel
-
-**Tools**: Cline + Node.js fs
+**Deliverable**: Working app that can create projects and manage component tree
 
 ---
 
-#### 1.4 File System Operations
-**Status**: Can be done with AI
-**Estimate**: 3-4 days
-
-- [ ] Create `.lowcode/` directory structure
-- [ ] Generate initial manifest.json
-- [ ] Scaffold Vite + React project
-- [ ] Install dependencies (npm install)
-- [ ] File watcher setup (chokidar)
-
-**Tools**: Cline + chokidar + Node.js
-
----
-
-### Phase 1 Deliverable
-
-```
-✅ Working Electron app that can:
-   • Create new React/Vite project
-   • Load existing projects
-   • Display basic UI panels
-   • Watch for file changes
-```
-
-**Total Estimate**: 2-3 weeks with AI assistance
-
----
-
-## Phase 2: Component Management (Weeks 4-6)
+## Phase 2: Property Editing + Expressions (Weeks 3-4)
 
 ### Goals
-- Component tree navigation
-- Add/edit/delete components
-- Basic property editing
-- Simple manifest management
+- Smart property editing system
+- Expression engine with two tiers
+- Custom function management
 
 ### Features
 
-#### 2.1 Component Tree View
-**Status**: Can be done with AI
-**Estimate**: 5-6 days
-
-- [ ] Tree view of component hierarchy
-- [ ] Expand/collapse nodes
-- [ ] Select component (highlights in editor)
-- [ ] Drag-drop to reorder (basic)
-- [ ] Context menu (add, delete, duplicate)
-- [ ] Search/filter components
-
-**Tools**: Cline + react-arborist
-
----
-
-#### 2.2 Component Inspector
-**Status**: Can be done with AI
-**Estimate**: 4-5 days
+#### 2.1 Property Editor UI
+**Estimate**: 4 days with AI
 
 - [ ] Properties panel for selected component
-- [ ] Edit component name and ID
-- [ ] List of props with types
-- [ ] List of state variables
-- [ ] List of children
-- [ ] Metadata display
+- [ ] Static value inputs (text, number, boolean, dropdown)
+- [ ] Expression toggle button
+- [ ] Property validation and error display
+- [ ] Conditional property visibility
 
-**Tools**: Cline + React forms
+#### 2.2 Expression System (Two-Tier)
+**Estimate**: 5 days with AI + human review
 
----
+**Tier 1: Simple Expressions (Sandboxed)**
+- [ ] Monaco editor with JavaScript syntax
+- [ ] Context-aware autocomplete (props, state, globals)
+- [ ] Safe expression evaluation (no fetch, localStorage, etc.)
+- [ ] Real-time validation and error display
 
-#### 2.3 Property Editor
-**Status**: Can be done with AI
-**Estimate**: 6-7 days
+**Tier 2: Custom Functions (Full Power)**
+- [ ] Global function editor with full JavaScript access
+- [ ] Function parameter and return type definition
+- [ ] Usage tracking and performance monitoring
+- [ ] Global trigger support (onMount, onUnmount, onVariableChange)
 
-- [ ] Static value input (text, number, boolean)
-- [ ] Expression editor (Monaco-based)
-- [ ] Auto-completion (basic)
-- [ ] Type validation
-- [ ] Dropdown for enums
-- [ ] Toggle between static/expression
+#### 2.3 AI Property Assistant
+**Estimate**: 3 days with AI
 
-**Tools**: Cline + Monaco Editor
+- [ ] AI suggest property values based on component context
+- [ ] Property description generation
+- [ ] Expression optimization suggestions
+- [ ] Custom function generation from natural language
 
----
-
-#### 2.4 Manifest CRUD Operations
-**Status**: Can be done with AI
-**Estimate**: 4-5 days
-
-- [ ] Add component to manifest
-- [ ] Update component properties
-- [ ] Delete component (with children)
-- [ ] Move component in tree
-- [ ] Duplicate component
-- [ ] Validate manifest on save
-
-**Tools**: Cline + JSON validation
+**Deliverable**: Complete property editing with expressions and AI assistance
 
 ---
 
-#### 2.5 AI Component Generation
-**Status**: Can be done with AI
-**Estimate**: 5-6 days
-
-- [ ] AI prompt input field
-- [ ] Send prompt to Claude API
-- [ ] Parse AI response into manifest format
-- [ ] Add generated component to tree
-- [ ] Preview generated code
-- [ ] Iterate with AI if needed
-
-**Tools**: Cline + Anthropic API
-
----
-
-### Phase 2 Deliverable
-
-```
-✅ Working visual editor that can:
-   • Display component tree
-   • Add/edit/delete components
-   • Set properties with type validation
-   • Use AI to generate components
-   • Save changes to manifest.json
-```
-
-**Total Estimate**: 3-4 weeks with AI assistance
-
----
-
-## Phase 3: Code Generation & Preview (Weeks 7-9)
+## Phase 3: Code Generation + Preview (Weeks 5-6)
 
 ### Goals
-- Generate React code from manifest
-- Preview components in isolation
-- Preview full app
-- Hot reload support
+- Clean React code generation
+- Live preview with hot reload
+- Plugin-ready architecture
 
 ### Features
 
-#### 3.1 React Code Generator
-**Status**: Can be done with AI
-**Estimate**: 6-7 days
+#### 3.1 React Code Generator (Plugin-Ready)
+**Estimate**: 5 days with AI + human architecture review
 
-- [ ] Component code generation (JSX)
-- [ ] Props interface generation
-- [ ] State hooks generation (useState)
-- [ ] Event handler generation
-- [ ] Import statement generation
-- [ ] Comment markers (@lowcode:generated)
+- [ ] Component code generation from manifest
+- [ ] Plugin interface definition (not implementation)
+- [ ] Import management and optimization
+- [ ] Custom function integration
+- [ ] Comment markers and documentation
 
-**Tools**: Cline + Template strings
+#### 3.2 Preview System
+**Estimate**: 4 days with AI
 
----
-
-#### 3.2 File Generation
-**Status**: Can be done with AI
-**Estimate**: 3-4 days
-
-- [ ] Write components to `src/components/`
-- [ ] Generate `src/App.jsx`
-- [ ] Generate `src/main.jsx`
-- [ ] Update on manifest changes
-- [ ] Preserve user edits (basic)
-
-**Tools**: Cline + Node.js fs
-
----
-
-#### 3.3 Component Isolation View
-**Status**: Can be done with AI
-**Estimate**: 5-6 days
-
-- [ ] Render selected component in iframe
-- [ ] Provide mock props
-- [ ] Hot reload on changes
-- [ ] Error boundary for crashes
+- [ ] Vite dev server integration
+- [ ] Iframe-based preview with security
+- [ ] Hot reload on manifest changes
+- [ ] Error boundary and display
 - [ ] Responsive viewport controls
 
-**Tools**: Cline + React + iframe
+#### 3.3 File System Integration
+**Estimate**: 3 days with AI
+
+- [ ] Write generated components to src/
+- [ ] Update package.json dependencies
+- [ ] Generate runtime helpers (globalFunctions.js, etc.)
+- [ ] File watching and conflict detection
+- [ ] Preserve user edits in protected regions
+
+**Deliverable**: End-to-end visual editing → code generation → preview
 
 ---
 
-#### 3.4 Full App Preview
-**Status**: Can be done with AI
-**Estimate**: 6-7 days
-
-- [ ] Start Vite dev server
-- [ ] Embed in Electron webview
-- [ ] Communication bridge (IPC)
-- [ ] Reload on file changes
-- [ ] Error display
-- [ ] Console log capture
-
-**Tools**: Cline + Vite + Electron webview
-
----
-
-#### 3.5 Global State Setup
-**Status**: Can be done with AI
-**Estimate**: 4-5 days
-
-- [ ] Generate `runtime/globalState.js` from `variables.json`
-- [ ] Zustand store creation
-- [ ] Hook generation
-- [ ] Import in components that use globals
-- [ ] Default values
-
-**Tools**: Cline + Zustand
-
----
-
-### Phase 3 Deliverable
-
-```
-✅ End-to-end code generation and preview:
-   • Visual changes → manifest → generated code → preview
-   • Component isolation view
-   • Full app preview with HMR
-   • Global state management working
-```
-
-**Total Estimate**: 3-4 weeks with AI assistance
-
----
-
-## Phase 4: Connections & Data Flow (Weeks 10-12)
+## Phase 4: AI Integration + Polish (Weeks 7-8)
 
 ### Goals
-- Visual connection system
-- Wire components together
-- Expression system for dynamic data
-- Basic script nodes
+- Comprehensive AI assistance
+- Component generation from prompts
+- Code review and optimization
 
 ### Features
 
-#### 4.1 Connection Visualization
-**Status**: Can be done with AI (with guidance)
-**Estimate**: 7-8 days
+#### 4.1 AI Component Generation
+**Estimate**: 4 days with AI
 
-- [ ] React Flow integration
-- [ ] Display components as nodes
-- [ ] Show inputs/outputs on nodes
-- [ ] Draw connections (edges)
-- [ ] Connection colors by type (props, events, state)
-- [ ] Save layout in connections.json
+- [ ] Natural language component creation
+- [ ] Component suggestion based on context
+- [ ] Style and behavior inference
+- [ ] Multi-step generation with refinement
 
-**Tools**: Cline + React Flow
-**Human Help**: Architecture guidance for layout persistence
+#### 4.2 AI Code Review & Optimization
+**Estimate**: 3 days with AI
 
----
+- [ ] Real-time code analysis and suggestions
+- [ ] Performance optimization recommendations
+- [ ] Accessibility compliance checking
+- [ ] Security vulnerability detection
 
-#### 4.2 Connection Creation
-**Status**: Can be done with AI
-**Estimate**: 6-7 days
+#### 4.3 User Experience Polish
+**Estimate**: 5 days with human + AI
 
-- [ ] Drag from output to input
-- [ ] Type checking (compatible connections)
-- [ ] Multiple connections support
-- [ ] Delete connections
-- [ ] Edit connection properties
-- [ ] Validation on save
+- [ ] Keyboard shortcuts and accessibility
+- [ ] Error handling and user feedback
+- [ ] Onboarding flow and tutorials
+- [ ] Help system and documentation
 
-**Tools**: Cline + React Flow
+**Deliverable**: Production-ready MVP with comprehensive AI assistance
 
 ---
 
-#### 4.3 Expression System
-**Status**: Can be done with AI
-**Estimate**: 5-6 days
-
-- [ ] Monaco-based expression editor
-- [ ] Context-aware auto-completion
-- [ ] Available variables list
-- [ ] Type validation
-- [ ] Syntax highlighting
-- [ ] Error indicators
-
-**Tools**: Cline + Monaco Editor
-
----
-
-#### 4.4 Script Nodes (Basic)
-**Status**: Can be done with AI
-**Estimate**: 6-7 days
-
-- [ ] Create script node in tree
-- [ ] Define inputs/outputs
-- [ ] Monaco editor for script code
-- [ ] Generate script file (`src/scripts/`)
-- [ ] Import in components that use script
-- [ ] Basic execution (no async yet)
-
-**Tools**: Cline + Monaco Editor
-
----
-
-### Phase 4 Deliverable
-
-```
-✅ Visual data flow:
-   • Wire components together visually
-   • Expression-based properties
-   • Script nodes for custom logic
-   • Generated code reflects connections
-```
-
-**Total Estimate**: 3-4 weeks with AI assistance
-
----
-
-## Phase 5: Polish & MVP Release (Weeks 13-16)
+## Phase 5: Testing + Release (Weeks 9-10)
 
 ### Goals
-- Error handling
-- UI/UX improvements
-- Documentation
-- Testing
-- First release
+- Comprehensive testing
+- Performance optimization
+- Release preparation
 
 ### Features
 
-#### 5.1 Error Handling
-**Status**: Needs human review
-**Estimate**: 5-6 days
+#### 5.1 Testing Suite
+**Estimate**: 5 days with human guidance
 
-- [ ] Graceful failure on invalid manifest
-- [ ] Validation errors displayed clearly
-- [ ] Code generation error handling
-- [ ] Preview crash recovery
-- [ ] User-friendly error messages
+- [ ] Unit tests for core functions
+- [ ] Integration tests for workflows
+- [ ] E2E tests with Playwright
+- [ ] Performance benchmarking
+- [ ] Security testing
 
-**Tools**: Cline with human review
-**Human Help**: Edge case testing, error message quality
+#### 5.2 Performance + Security
+**Estimate**: 3 days with human review
 
----
+- [ ] Expression sandboxing security audit
+- [ ] Large project performance testing
+- [ ] Memory leak detection
+- [ ] Bundle size optimization
 
-#### 5.2 UI Polish
-**Status**: Needs human review
-**Estimate**: 7-8 days
+#### 5.3 Release Preparation
+**Estimate**: 2 days with AI
 
-- [ ] Consistent styling
-- [ ] Icons and visual feedback
-- [ ] Loading states
-- [ ] Animations (subtle)
-- [ ] Keyboard shortcuts
-- [ ] Tooltips and help text
+- [ ] User documentation and examples
+- [ ] Sample projects and templates
+- [ ] Error tracking and analytics
+- [ ] Distribution setup (auto-updates)
 
-**Tools**: Cline + designer collaboration
-**Human Help**: UX review, accessibility
+**Deliverable**: Production-ready Rise MVP v1.0
 
 ---
 
-#### 5.3 User Onboarding
-**Status**: Can be done with AI
-**Estimate**: 4-5 days
+## Deferred Features (Post-MVP)
 
-- [ ] Welcome screen
-- [ ] Quick start tutorial
-- [ ] Sample projects
-- [ ] Tooltips for first-time users
-- [ ] Help menu with links
+### Phase 6: Plugin System (Weeks 11-16)
+- Vue.js plugin implementation
+- Svelte plugin implementation  
+- Plugin marketplace infrastructure
+- Community plugin APIs
 
-**Tools**: Cline + React
+### Phase 7: Advanced Features (Weeks 17-24)
+- Step-through debugger
+- Bidirectional sync (code → manifest)
+- Visual connection editor
+- Advanced state management UI
+- Team collaboration features
 
----
-
-#### 5.4 Testing
-**Status**: Needs human guidance
-**Estimate**: 8-10 days
-
-- [ ] Unit tests (key functions)
-- [ ] Integration tests (workflows)
-- [ ] E2E tests (Playwright)
-- [ ] Manual test plan
-- [ ] Bug fixing
-
-**Tools**: Vitest, Playwright
-**Human Help**: Testing strategy, critical path identification
+### Phase 8: Enterprise Features (Weeks 25-32)
+- Self-hosted deployment options
+- Advanced security and permissions
+- Integration with design systems
+- API mocking and backend integration
 
 ---
 
-#### 5.5 Documentation
-**Status**: Can be done with AI + human
-**Estimate**: 5-6 days
+## Architecture Principles for Plugin Readiness
 
-- [ ] User guide
-- [ ] Video tutorials (if time)
-- [ ] API documentation
-- [ ] Troubleshooting guide
-- [ ] Contributing guide
+### 1. Clean Separation of Concerns
+```typescript
+// Plugin-ready architecture
+interface FrameworkPlugin {
+  generateComponent(manifest: ComponentManifest): string;
+  parseComponent(code: string): ComponentManifest;
+  getProjectTemplate(): ProjectTemplate;
+}
 
-**Tools**: Cline + Markdown
-**Human Help**: Technical accuracy review
-
----
-
-### Phase 5 Deliverable
-
-```
-✅ MVP Release:
-   • Stable, tested Electron app
-   • Complete user documentation
-   • Sample projects
-   • Known limitations documented
-   • Ready for beta users
+// Current React implementation follows this interface
+class ReactPlugin implements FrameworkPlugin {
+  generateComponent(manifest) {
+    // React-specific generation
+  }
+}
 ```
 
-**Total Estimate**: 4-5 weeks with AI + human collaboration
+### 2. Semantic Abstractions
+```json
+// Framework-agnostic manifest format
+{
+  "type": "Button",
+  "semantics": {
+    "concept": "Interactive button element",
+    "triggers": ["onClick", "onHover"]
+  },
+  "properties": {
+    "onClick": {
+      "type": "eventHandler",
+      "action": "navigation",
+      "target": "/dashboard"
+    }
+  }
+}
+```
 
----
-
-## Post-MVP Features (Future Phases)
-
-### Phase 6: Step Debugger
-- Event-level debugging
-- State snapshots
-- Time travel
-- Breakpoints
-
-**Estimate**: 6-8 weeks
-**Needs**: Human developer for runtime instrumentation
-
----
-
-### Phase 7: Bidirectional Sync
-- Parse code changes
-- Update manifest automatically
-- Conflict resolution
-- Protected regions
-
-**Estimate**: 8-10 weeks
-**Needs**: Human developer for AST parsing and AI integration
-
----
-
-### Phase 8: Plugin System
-- Framework plugin interface
-- Vue plugin
-- Svelte plugin
-- Plugin marketplace
-
-**Estimate**: 6-8 weeks
-**Needs**: Human developer for architecture
-
----
-
-### Phase 9: Advanced Features
-- Component library imports (MUI, shadcn)
-- Routing support
-- API integration wizard
-- Deployment pipeline
-- Collaboration features
-
-**Estimate**: 12-16 weeks
-**Needs**: Mixed - some AI, some human
-
----
-
-## Resource Requirements
-
-### AI Development (Cline/Claude)
-- **Availability**: Continuous throughout project
-- **Usage**: Primary development tool for 80% of features
-- **Best For**: UI implementation, CRUD operations, code generation, templating
-
-### Human Developer
-- **Phase 1-4**: Part-time (10-15 hours/week) - Architecture review, complex features
-- **Phase 5**: Full-time (30-40 hours/week) - Testing, polish, release prep
-- **Post-MVP**: Full-time for advanced features
-
-### Skills Needed (Human)
-- React/TypeScript expertise
-- Electron experience
-- AST parsing (Babel)
-- System architecture
-- Testing/QA
-- UX sensibility
-
----
-
-## Risk Mitigation
-
-### Technical Risks
-
-**Risk**: Code generation produces invalid React
-**Mitigation**: 
-- Start with simple templates
-- Add ESLint validation
-- Test with various component types
-- Human review generated code patterns
-
-**Risk**: Preview fails or crashes frequently
-**Mitigation**:
-- Error boundaries everywhere
-- Graceful degradation
-- Clear error messages
-- Sandbox preview properly
-
-**Risk**: File watching causes infinite loops
-**Mitigation**:
-- Debounce file events
-- Track generation timestamps
-- Ignore tool-generated changes
-- Human review watching logic
-
-### Scope Risks
-
-**Risk**: Features creep, timeline extends
-**Mitigation**:
-- Strict MVP feature list
-- Push nice-to-haves to post-MVP
-- Regular scope reviews
-- Time-box implementation
-
-**Risk**: AI can't handle complexity
-**Mitigation**:
-- Break features into smaller tasks
-- Clear specifications for AI
-- Human reviews AI output
-- Fall back to human for complex parts
+### 3. Extensible Property System
+```json
+// Plugin can extend property types
+{
+  "customProperty": {
+    "type": "vue:computed",  // Vue-specific property type
+    "expression": "firstName + ' ' + lastName"
+  }
+}
+```
 
 ---
 
@@ -625,86 +344,141 @@
 ### MVP Launch Criteria
 
 ✅ **Functionality**:
-- Can create new React project in < 2 minutes
-- Can add 10+ components without issues
-- Generated code compiles without errors
-- Preview loads in < 5 seconds
-- AI generates usable components > 70% of time
+- Create new project in < 2 minutes
+- Add 20+ components without performance issues
+- Generated code compiles and runs without errors
+- AI generates usable components > 80% of time
+- Expression system handles complex logic safely
 
-✅ **Stability**:
-- No crashes in 1-hour session
-- File operations reliable
-- Undo/redo works correctly
-- Changes persist across restarts
+✅ **Performance**:
+- App starts in < 3 seconds
+- Component tree responsive with 100+ components
+- Preview updates in < 500ms
+- Code generation in < 1 second
 
-✅ **UX**:
-- New users can complete tutorial in < 30 minutes
-- Common tasks require < 5 clicks
-- Errors have clear explanations
-- UI feels responsive (< 100ms interactions)
-
----
-
-## Development Workflow
-
-### Daily Process (with AI)
-
-1. **Morning Planning** (15 min)
-   - Review roadmap
-   - Prioritize today's tasks
-   - Break tasks into subtasks
-
-2. **AI Development** (4-6 hours)
-   - Use Cline to implement features
-   - Provide clear specifications
-   - Review and test AI output
-   - Iterate on feedback
-
-3. **Human Review** (1-2 hours)
-   - Code review
-   - Architecture validation
-   - Manual testing
-   - Bug fixing
-
-4. **End of Day** (15 min)
-   - Commit progress
-   - Update roadmap
-   - Note blockers
-   - Plan tomorrow
-
-### Weekly Process
-
-- **Monday**: Sprint planning, prioritize features
-- **Wednesday**: Mid-week review, adjust course
-- **Friday**: Demo progress, retrospective
+✅ **Quality**:
+- No crashes during 2-hour sessions
+- Generated code passes ESLint without errors
+- AI suggestions relevant > 70% of time
+- User can override any AI decision
 
 ---
 
-## Budget Estimate (Assumptions)
+## Risk Mitigation
 
-### AI Costs
-- **Claude API**: ~$200-400/month (heavy usage)
-- **Total for MVP**: ~$800-1600
+### Technical Risks
+
+**Risk**: Expression sandboxing bypassed
+**Mitigation**: 
+- Comprehensive security testing
+- Limited scope for simple expressions
+- Full power only in explicit custom functions
+
+**Risk**: Generated code quality issues  
+**Mitigation**:
+- Extensive code generation testing
+- ESLint integration from day 1
+- Real project validation
+
+**Risk**: AI API reliability issues
+**Mitigation**:
+- Graceful degradation when AI unavailable
+- Local fallbacks for core functionality
+- Multiple AI provider support
+
+### Scope Risks
+
+**Risk**: Feature creep back to 16-week timeline
+**Mitigation**:
+- Strict feature freeze after Phase 2
+- Weekly scope reviews
+- Clear post-MVP roadmap for deferred features
+
+---
+
+## Resource Requirements
+
+### AI Development (Cline/Claude)
+- **Usage**: 6-8 hours/day throughout project
+- **Budget**: ~$800-1200 for MVP (Claude API costs)
+- **Best For**: UI implementation, code generation, templating
 
 ### Human Developer
-- **Part-time (Phases 1-4)**: ~150 hours @ $100/hr = $15,000
-- **Full-time (Phase 5)**: ~160 hours @ $100/hr = $16,000
-- **Total**: ~$31,000
+- **Phase 1-3**: Part-time (10-15 hours/week) - Architecture review
+- **Phase 4-5**: Full-time (30-40 hours/week) - Polish, testing, security
+- **Total**: ~200 hours @ $100/hr = $20,000
 
 ### Tools & Services
-- **Electron Forge**: Free
-- **React Flow**: Free tier (add license later)
-- **GitHub**: Free
-- **Design tools**: Free (Figma community)
-- **Total**: ~$0-200
+- **Development**: Free (Electron, React, Monaco, etc.)
+- **AI APIs**: $800-1200 (Claude + OpenAI)
+- **Total MVP Budget**: ~$22,000
 
-### Grand Total MVP: ~$32,000-35,000
+---
 
-**If building without AI**: Likely 2-3x longer and more expensive
+## Post-MVP Growth Path
+
+### Version 1.1 (Weeks 11-14): Plugin Foundation
+- Vue.js plugin as proof of concept
+- Plugin interface refinement
+- Community documentation
+
+### Version 1.2 (Weeks 15-18): Advanced Features  
+- Visual debugger
+- Component library import (shadcn, MUI)
+- Advanced expression editor
+
+### Version 1.3 (Weeks 19-24): Collaboration
+- Team features
+- Component sharing
+- Git integration
+
+---
+
+## Daily Development Workflow
+
+### With AI (4-6 hours/day)
+1. **Morning Planning** (30 min): Review roadmap, prioritize tasks
+2. **AI Development** (3-4 hours): Implement features with Cline
+3. **Human Review** (1-2 hours): Architecture, testing, polish
+4. **End of Day** (30 min): Commit progress, plan tomorrow
+
+### Weekly Milestones
+- **Monday**: Sprint planning, demo previous week
+- **Wednesday**: Mid-week review, course correction
+- **Friday**: Demo to stakeholders, retrospective
+
+---
+
+## Success Factors
+
+### What Makes This MVP Successful
+1. **Clear Scope**: Focus on core value, defer complexity
+2. **AI Leverage**: Use AI for speed while maintaining quality
+3. **Plugin-Ready**: Architecture that scales without rewrites
+4. **User-Centric**: Real workflows over theoretical features
+5. **Market Timing**: Ride the AI coding wave with practical tools
+
+### What Could Derail Us
+1. **Scope Creep**: Adding "just one more feature"
+2. **Over-Engineering**: Building plugin system before validating core
+3. **AI Dependency**: Assuming AI solves all problems
+4. **Security Holes**: Underestimating expression system risks
+5. **Performance**: Not testing with realistic project sizes
+
+---
+
+**Ready to build the future of low-code development!** 🚀
 
 ---
 
 **See Also**:
-- [Architecture](./ARCHITECTURE.md) - Technical implementation
+- [Component Schema](./COMPONENT_SCHEMA.md) - Simplified for MVP
+- [Security Model](./SECURITY.md) - Expression safety and custom function power  
+- [Architecture](./ARCHITECTURE.md) - Plugin-ready design
 - [Getting Started](./GETTING_STARTED.md) - Development setup
-- [Component Schema](./COMPONENT_SCHEMA.md) - Data structures to implement
+
+---
+
+**Status**: 🎯 Focused MVP Scope  
+**Timeline**: 8-10 weeks  
+**Next**: Security model and expression system design
