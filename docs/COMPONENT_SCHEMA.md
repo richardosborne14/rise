@@ -1,669 +1,811 @@
-# Component Schema Specification (MVP)
+# COMPONENT_SCHEMA.md - Critical Updates Required
 
-> The JSON manifest format for Rise MVP - simplified for rapid development while maintaining plugin-ready architecture.
-
-## Philosophy
-
-Rise's MVP component schema balances simplicity with future extensibility:
-
-1. **🎯 Focus on Core Value**: Visual editing + AI assistance + clean React generation
-2. **🔓 Plugin-Ready Architecture**: Semantic structure for future framework plugins
-3. **🤖 AI Integration**: Rich metadata for intelligent assistance
-4. **🚀 Rapid Development**: Minimal complexity to ship MVP in 8-10 weeks
+> Based on comprehensive audit findings - reduce scope to MVP Level 1, add schema level indicators
 
 ---
 
-## MVP Schema Structure
+## 🚨 CRITICAL SCOPE REDUCTION
 
-### Core Components Only
+### Problem Identified
 
-```json
-{
-  "schemaVersion": "1.0.0-mvp",
-  "metadata": { /* Project info */ },
-  "components": { /* Component definitions */ },
-  "globalFunctions": { /* Custom JavaScript functions */ },
-  "globalState": { /* Simple reactive variables */ },
-  "ai": { /* AI integration settings */ }
-}
+Current COMPONENT_SCHEMA.md shows **Level 3 (Advanced) features** but MVP only implements **Level 1 (Basic)**.
+
+**Examples of features shown that are NOT in MVP**:
+- ❌ Live database queries (dataConnections)
+- ❌ Real-time WebSocket transport
+- ❌ AI code review integration
+- ❌ Performance metrics
+- ❌ Testing integration
+- ❌ Complex expressions
+- ❌ Event handlers
+- ❌ State management
+
+**Impact**: Misleading for developers, creates impossible expectations
+
+---
+
+## ✅ REQUIRED CHANGES
+
+### 1. Add Schema Level Indicator at Top
+
+**Location**: After "Philosophy" section, before "Schema Overview"
+
+**✅ Required Addition**:
+
+```markdown
+## Schema Levels
+
+Rise implements a **progressive schema system** to manage complexity:
+
+```
+📊 Schema Version Levels
+├─ Level 1 (MVP)       - Weeks 1-12  - This document shows mostly Level 1
+├─ Level 2 (Enhanced)  - Weeks 13-24 - Some Level 2 features shown
+└─ Level 3 (Advanced)  - Week 25+    - Level 3 features marked clearly
 ```
 
-**Deferred for Post-MVP**:
-- ❌ Complex plugin system
-- ❌ Advanced routing
-- ❌ Database integration  
-- ❌ Deployment configuration
-- ❌ Performance analytics
-- ❌ Migration system
+**Legend used in this document**:
+- 🟢 **Level 1 (MVP)**: Ready for initial implementation
+- 🟡 **Level 2 (Enhanced)**: Post-MVP, weeks 13-24
+- 🔴 **Level 3 (Advanced)**: Future, week 25+
+
+**See**: [SCHEMA_LEVELS.md](./SCHEMA_LEVELS.md) for complete level definitions
+
+**Critical**: Only implement features matching your current level!
+```
 
 ---
 
-## Project Metadata
+### 2. Update Schema Overview Section
+
+**Location**: Replace entire "Version 1.0.0 Structure" section
+
+**❌ Remove**: Current structure showing all advanced features
+
+**✅ Replace With**:
+
+```markdown
+### Level 1 (MVP) Schema Structure 🟢
 
 ```json
 {
-  "metadata": {
-    "projectName": "ChatApp",
-    "description": "Real-time chat application",
+  "schemaVersion": "1.0.0",
+  "level": 1,
+  "metadata": { 
+    "projectName": "string",
     "framework": "react",
-    "typescript": false,
-    "createdAt": "2025-10-25T10:00:00Z",
-    "updatedAt": "2025-10-25T15:30:00Z",
-    "author": "user@example.com",
-    
-    "ai": {
-      "enabled": true,
-      "provider": "claude",
-      "assistanceLevel": "copilot"
+    "createdAt": "datetime"
+  },
+  "buildConfig": { 
+    "bundler": "vite",
+    "cssFramework": "tailwind" 
+  },
+  "plugins": { 
+    "framework": {
+      "name": "@rise/plugin-react",
+      "version": "1.0.0"
     }
+  },
+  "components": { 
+    /* Component definitions - see below */
   }
 }
 ```
 
+**What's NOT in Level 1**:
+- ❌ globalFunctions (Level 2)
+- ❌ globalState (Level 2)
+- ❌ connections (Level 2)
+- ❌ routes (Level 3)
+- ❌ api (Level 3)
+- ❌ database (Level 3)
+- ❌ analytics (Level 3)
+- ❌ migrations (Level 3)
+
 ---
 
-## Component Definition
+### Level 2 (Enhanced) Schema Additions 🟡
+
+**Available**: Weeks 13-24
+
+**Adds**:
+```json
+{
+  "globalFunctions": { /* User-defined functions */ },
+  "globalState": { /* Reactive variables */ },
+  "connections": [ /* Data flow connections */ ]
+}
+```
+
+---
+
+### Level 3 (Advanced) Schema Additions 🔴
+
+**Available**: Week 25+
+
+**Adds**:
+```json
+{
+  "routes": [ /* Application routing */ ],
+  "api": { /* API configuration */ },
+  "database": { /* Database setup */ },
+  "analytics": { /* Performance metrics */ }
+}
+```
+```
+
+---
+
+### 3. Replace ChatMessage Example
+
+**Location**: "Complete Component Definition" section
+
+**❌ Current Problem**: Shows Level 3 features (dataConnections, codeReview, performance monitoring)
+
+**✅ Replace With Level 1 Example**:
+
+```markdown
+## Level 1 (MVP) Component Example 🟢
+
+### Simple Button Component
 
 ```json
 {
   "components": {
-    "comp_user_card_001": {
-      "id": "comp_user_card_001",
-      "displayName": "UserCard",
-      "type": "composite",
-      "category": "user-interface",
-      "aiGenerated": false,
-      "aiDescription": "User profile card with avatar and contact info",
+    "comp_button_001": {
+      "id": "comp_button_001",
+      "displayName": "Button",
+      "type": "button",
+      "category": "basic",
       
       "properties": {
-        "user": {
+        "label": {
+          "type": "static",
+          "value": "Click me",
+          "dataType": "string"
+        },
+        "disabled": {
+          "type": "static",
+          "value": false,
+          "dataType": "boolean"
+        },
+        "variant": {
           "type": "prop",
-          "dataType": "object",
-          "required": true,
-          "description": "User object from parent component"
-        },
-        
-        "displayName": {
-          "type": "expression",
-          "expression": "user.firstName + ' ' + user.lastName",
-          "dependencies": ["props.user.firstName", "props.user.lastName"],
-          "description": "Full name computed from first and last name"
-        },
-        
-        "badgeText": {
-          "type": "customFunction",
-          "functionName": "getUserBadge",
-          "args": ["props.user"],
-          "description": "Dynamic badge text based on user status"
-        }
-      },
-      
-      "localState": {
-        "isHovered": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether card is currently hovered"
-        }
-      },
-      
-      "eventHandlers": {
-        "onClick": {
-          "type": "navigation",
-          "target": "/profile/${props.user.id}",
-          "description": "Navigate to user profile page"
+          "dataType": "string",
+          "required": false,
+          "default": "primary",
+          "options": ["primary", "secondary", "danger"]
         }
       },
       
       "styling": {
-        "className": "user-card",
+        "baseClasses": ["btn", "rounded-lg", "px-4", "py-2"],
         "conditionalClasses": {
-          "hover": "state.isHovered",
-          "premium": "user.isPremium"
+          "container": [
+            "props.variant === 'primary' ? 'bg-blue-500 text-white' : ''",
+            "props.variant === 'secondary' ? 'bg-gray-200 text-gray-800' : ''",
+            "props.variant === 'danger' ? 'bg-red-500 text-white' : ''"
+          ]
         }
       },
       
-      "children": [
-        "comp_avatar_001",
-        "comp_user_info_001"
-      ],
+      "children": [],
       
-      "ai": {
-        "lastReview": "2025-10-25T15:30:00Z",
-        "suggestions": [
-          "Consider adding loading state for user data",
-          "Add accessibility attributes for screen readers"
-        ],
-        "userFeedback": "implemented accessibility suggestion"
+      "metadata": {
+        "createdAt": "2025-10-25T10:00:00Z",
+        "author": "user",
+        "version": "1.0.0"
       }
     }
   }
 }
 ```
 
----
+### Generated Code (Level 1)
 
-## Property Types (MVP)
+```jsx
+import React from 'react';
 
-### 1. Static Values
-```json
-{
-  "title": {
-    "type": "static",
-    "value": "Welcome to Rise",
-    "description": "Fixed page title"
-  }
+/**
+ * @rise:generated
+ * Level: 1 (MVP)
+ * Component: Button
+ * Generated: 2025-10-25T10:00:00Z
+ */
+export function Button({ 
+  label = "Click me", 
+  disabled = false,
+  variant = "primary" 
+}) {
+  // Determine variant classes
+  const variantClass = 
+    variant === 'primary' ? 'bg-blue-500 text-white' :
+    variant === 'secondary' ? 'bg-gray-200 text-gray-800' :
+    variant === 'danger' ? 'bg-red-500 text-white' :
+    'bg-blue-500 text-white'; // default
+
+  return (
+    <button 
+      className={`btn rounded-lg px-4 py-2 ${variantClass}`}
+      disabled={disabled}
+    >
+      {label}
+    </button>
+  );
 }
 ```
 
-### 2. Props (Component Inputs)
+**Characteristics**:
+- ✅ Clean, simple React
+- ✅ No hooks or complex state
+- ✅ Standard props
+- ✅ Basic conditional styling
+- ✅ Fully functional
+
+---
+
+## Level 2 (Enhanced) Component Example 🟡
+
+**Available**: Post-MVP (Weeks 13-24)
+
+Shows expressions, state, events:
+
 ```json
 {
-  "user": {
-    "type": "prop",
-    "dataType": "object",
-    "required": true,
-    "description": "User data object",
-    "schema": {
-      "id": "string",
-      "name": "string",
-      "email": "string"
+  "comp_user_card_001": {
+    "id": "comp_user_card_001",
+    "displayName": "UserCard",
+    "level": 2,
+    
+    "properties": {
+      "user": {
+        "type": "prop",
+        "dataType": "object",
+        "required": true
+      },
+      "displayName": {
+        "type": "expression",
+        "expression": "props.user.firstName + ' ' + props.user.lastName",
+        "dependencies": ["props.user.firstName", "props.user.lastName"]
+      }
+    },
+    
+    "localState": {
+      "isExpanded": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    
+    "eventHandlers": {
+      "onClick": {
+        "action": "setState",
+        "target": "isExpanded",
+        "value": "!state.isExpanded"
+      }
     }
   }
 }
 ```
 
-### 3. Simple Expressions (Sandboxed)
+**Note**: This requires SECURITY_SPEC.md expression sandboxing!
+
+---
+
+## Level 3 (Advanced) Component Example 🔴
+
+**Available**: Future (Week 25+)
+
+Shows real-time data, AI review, performance monitoring:
+
 ```json
 {
-  "displayText": {
+  "comp_chat_message_001": {
+    "id": "comp_chat_message_001",
+    "displayName": "ChatMessage",
+    "level": 3,
+    
+    "dataConnections": {
+      "reactions": {
+        "type": "liveQuery",
+        "source": "supabase.reactions",
+        "realtime": true
+      }
+    },
+    
+    "codeReview": {
+      "aiFindings": ["Performance: Good memoization"],
+      "userAcknowledged": true
+    },
+    
+    "performance": {
+      "memoization": ["displayName", "timeAgo"],
+      "metrics": {
+        "renderTime": "12ms"
+      }
+    }
+  }
+}
+```
+
+**Note**: This requires Supabase plugin, AI integration, performance monitoring!
+```
+
+---
+
+### 4. Update Property Types Section
+
+**Location**: "Property Types Reference" section
+
+**✅ Add Level Indicators**:
+
+```markdown
+## Property Types by Level
+
+### Level 1 (MVP) 🟢
+
+#### Static Values
+```json
+{
+  "title": {
+    "type": "static",
+    "value": "Dashboard",
+    "dataType": "string"
+  }
+}
+```
+
+#### Props (Component Inputs)
+```json
+{
+  "userData": {
+    "type": "prop",
+    "dataType": "object",
+    "required": true,
+    "default": null
+  }
+}
+```
+
+**That's it for Level 1!** No expressions, state, or events yet.
+
+---
+
+### Level 2 (Enhanced) 🟡
+
+Adds these property types:
+
+#### Expressions
+```json
+{
+  "dynamicText": {
     "type": "expression",
-    "expression": "user.name.toUpperCase()",
-    "dependencies": ["props.user.name"],
-    "description": "User name in uppercase",
-    "validation": "safe"
+    "expression": "props.user.firstName + ' ' + props.user.lastName",
+    "dependencies": ["props.user.firstName", "props.user.lastName"]
   }
 }
 ```
 
-### 4. Custom Functions (Full Power)
-```json
-{
-  "formattedPrice": {
-    "type": "customFunction",
-    "functionName": "formatCurrency",
-    "args": ["props.price", "global.userCurrency"],
-    "description": "Price formatted according to user's currency preference"
-  }
-}
-```
+**Security**: Must implement SECURITY_SPEC.md before using!
 
-### 5. Local State
+#### State Variables
 ```json
 {
   "isVisible": {
     "type": "state",
     "dataType": "boolean",
-    "default": false,
-    "description": "Controls component visibility"
+    "default": false
   }
 }
 ```
 
-### 6. Global State References
+#### Event Handlers
 ```json
 {
-  "currentUser": {
-    "type": "globalState",
-    "variable": "currentUser",
-    "description": "Currently authenticated user"
+  "onClick": {
+    "type": "eventHandler",
+    "action": "setState",
+    "target": "isVisible",
+    "value": "!state.isVisible"
   }
 }
 ```
 
 ---
 
-## Global Functions (MVP Core Feature)
+### Level 3 (Advanced) 🔴
 
+Adds these property types:
+
+#### Data Connections
 ```json
 {
-  "globalFunctions": {
-    "formatCurrency": {
-      "code": "function formatCurrency(amount, currency = 'USD') {\n  return new Intl.NumberFormat('en-US', {\n    style: 'currency',\n    currency: currency\n  }).format(amount);\n}",
-      "description": "Formats monetary amounts with proper currency symbols",
-      "parameters": [
-        {"name": "amount", "type": "number", "required": true},
-        {"name": "currency", "type": "string", "required": false, "default": "USD"}
-      ],
-      "returns": "string",
-      "author": "user",
-      "aiGenerated": false,
-      "triggers": [],
-      
-      "ai": {
-        "reviewStatus": "approved",
-        "securityWarnings": [],
-        "performanceNotes": ["Function is pure and fast"],
-        "suggestions": ["Consider memoization for frequent calls"]
-      }
-    },
-    
-    "validateEmail": {
-      "code": "function validateEmail(email) {\n  const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n  return regex.test(email);\n}",
-      "description": "Validates email address format",
-      "parameters": [{"name": "email", "type": "string", "required": true}],
-      "returns": "boolean",
-      "author": "ai",
-      "aiGenerated": true,
-      "triggers": ["form:email:change"],
-      
-      "ai": {
-        "reviewStatus": "auto-approved",
-        "securityWarnings": [],
-        "confidence": 0.95
-      }
-    }
+  "userList": {
+    "type": "liveQuery",
+    "source": "database.users",
+    "realtime": true
   }
 }
 ```
 
-### Function Triggers (Simplified)
-```json
-{
-  "onAppMount": {
-    "code": "function onAppMount() {\n  console.log('App started');\n  trackEvent('app_launch');\n}",
-    "triggers": ["app:mount"],
-    "description": "Runs when application starts"
-  }
-}
-```
-
-**Available Triggers (MVP)**:
-- `app:mount`, `app:unmount`
-- `component:mount`, `component:unmount`
-- `global:{variable}:changed`
-- `route:changed` (basic routing only)
-
----
-
-## Global State (Simplified)
-
-```json
-{
-  "globalState": {
-    "currentUser": {
-      "type": "reactive",
-      "dataType": "object",
-      "default": null,
-      "description": "Currently authenticated user",
-      "schema": {
-        "id": "string",
-        "name": "string",
-        "email": "string",
-        "avatar": "string"
-      }
-    },
-    
-    "theme": {
-      "type": "reactive",
-      "dataType": "string",
-      "default": "light",
-      "options": ["light", "dark"],
-      "description": "Application theme preference"
-    },
-    
-    "isLoading": {
-      "type": "reactive",
-      "dataType": "boolean",
-      "default": false,
-      "description": "Global loading state"
-    }
-  }
-}
+**Requirements**: Database plugin, WebSocket handling
 ```
 
 ---
 
-## AI Integration (MVP Focus)
+### 5. Add MVP Limitations Section
 
-### AI Assistance Configuration
-```json
-{
-  "ai": {
-    "enabled": true,
-    "provider": "claude",
-    "features": {
-      "componentGeneration": true,
-      "codeReview": true,
-      "expressionHelp": true,
-      "functionGeneration": true
-    },
-    "userPreferences": {
-      "autoAcceptSimple": false,
-      "reviewLevel": "detailed",
-      "privacyMode": true
-    }
-  }
-}
-```
+**Location**: Add new section after "Property Types"
 
-### Component-Level AI Data
-```json
-{
-  "ai": {
-    "generated": {
-      "prompt": "Create a user card with avatar and contact info",
-      "timestamp": "2025-10-25T10:00:00Z",
-      "confidence": 0.92
-    },
-    "reviewed": {
-      "lastReview": "2025-10-25T15:30:00Z",
-      "findings": [
-        "Good component structure",
-        "Consider adding loading state"
-      ],
-      "status": "approved"
-    },
-    "userFeedback": {
-      "accepted": ["component structure"],
-      "rejected": ["complex styling suggestion"],
-      "customized": ["simplified event handlers"]
-    }
-  }
-}
+**✅ Required Addition**:
+
+```markdown
+## MVP Limitations (Level 1) 🟢
+
+### What You CAN Do in MVP:
+
+✅ **Components**:
+- Create unlimited components
+- Nest components (max 5 levels deep)
+- Use props to pass data down
+- Basic conditional styling
+
+✅ **Properties**:
+- Static values (strings, numbers, booleans)
+- Props from parent components
+- Simple conditional classes
+
+✅ **Styling**:
+- Tailwind utility classes
+- Custom CSS (sanitized)
+- Variant-based styling
+
+✅ **Generated Code**:
+- Clean, readable React
+- Standard component patterns
+- Works with any React project
+
+---
+
+### What You CANNOT Do in MVP (Coming Soon):
+
+❌ **Not Until Level 2** (Weeks 13-24):
+- Custom JavaScript expressions
+- Component state (useState)
+- Event handlers (onClick, etc.)
+- Computed properties
+- Global state management
+- Global functions
+
+❌ **Not Until Level 3** (Week 25+):
+- Real-time data connections
+- Database integration
+- AI code review
+- Performance monitoring
+- Advanced routing
+- Testing integration
+
+**See**: [SCHEMA_LEVELS.md](./SCHEMA_LEVELS.md) for migration path
 ```
 
 ---
 
-## Plugin-Ready Architecture (Not Implemented in MVP)
+### 6. Remove or Clearly Mark Advanced Examples
 
-### Framework-Agnostic Property Types
-```json
-{
-  "semanticType": "InteractiveButton",
-  "frameworkHints": {
-    "react": { "elementType": "button", "eventProp": "onClick" },
-    "vue": { "elementType": "button", "eventProp": "@click" },
-    "svelte": { "elementType": "button", "eventProp": "on:click" }
-  }
-}
-```
+**Location**: Throughout document
 
-### Plugin Interface Placeholders
-```json
-{
-  "pluginSupport": {
-    "framework": "react",
-    "version": "1.0.0",
-    "capabilities": {
-      "typescript": false,
-      "stateManagement": "react-hooks",
-      "routing": "react-router"
-    }
-  }
-}
-```
+**✅ Required Changes**:
 
-**Note**: Plugin system architecture is defined but not implemented in MVP
+**Option A**: Remove all Level 2 and Level 3 examples from this doc and move them to separate docs:
+- SCHEMA_LEVEL_2_EXAMPLES.md
+- SCHEMA_LEVEL_3_EXAMPLES.md
+
+**Option B**: Keep examples but add prominent warnings:
+
+```markdown
+---
+⚠️ **LEVEL 3 EXAMPLE - NOT FOR MVP**
+
+The following example shows **advanced features** that will not be available until Week 25+.
+
+**Requirements**:
+- Database plugin installed
+- WebSocket support
+- AI integration
+- Performance monitoring
+
+**Do not attempt to implement these features in MVP!**
 
 ---
 
-## Generated React Code Examples
-
-### Simple Component
-**Schema**:
-```json
-{
-  "id": "comp_button_001",
-  "displayName": "Button",
-  "properties": {
-    "title": { "type": "static", "value": "Click me" },
-    "onClick": { "type": "eventHandler", "action": "alert('Clicked!')" }
-  }
-}
+[example here]
 ```
 
-**Generated Code**:
+**Recommendation**: Use Option A (separate docs) to avoid confusion
+
+---
+
+### 7. Update "AI Integration Features" Section
+
+**Location**: "AI Integration Features" section
+
+**❌ Current Problem**: Shows Level 3 features without warning
+
+**✅ Required Update**:
+
+Add at top of section:
+
+```markdown
+## AI Integration Features 🔴 **LEVEL 3 ONLY**
+
+**Available**: Week 25+  
+**Status**: Not in MVP  
+**Dependencies**: AI provider integration, cost management system
+
+⚠️ **This section describes future functionality**
+
+---
+
+[existing content with warning maintained]
+```
+
+---
+
+### 8. Update Code Generation Examples
+
+**Location**: "Code Generation Examples" section
+
+**✅ Required Addition**:
+
+```markdown
+## Code Generation Examples by Level
+
+### Level 1 (MVP) Output 🟢
+
+**Simple, clean React with no complexity**:
+
 ```jsx
 import React from 'react';
 
 /**
- * Button component
- * @generated Rise MVP v1.0.0
+ * @rise:generated
+ * Level: 1 (MVP)
+ * Component: Button
+ * Generated: 2025-10-25T10:00:00Z
  */
-export default function Button({ onClick }) {
-  const handleClick = () => {
-    alert('Clicked!');
-    if (onClick) onClick();
-  };
+export function Button({ label, disabled, variant = 'primary' }) {
+  const variantClass = 
+    variant === 'primary' ? 'bg-blue-500' :
+    variant === 'secondary' ? 'bg-gray-200' :
+    'bg-blue-500';
 
   return (
-    <button onClick={handleClick}>
-      Click me
+    <button 
+      className={`btn ${variantClass}`}
+      disabled={disabled}
+    >
+      {label}
     </button>
   );
 }
-
-Button.propTypes = {
-  onClick: PropTypes.func
-};
 ```
 
-### Component with Expressions and Custom Functions
-**Schema**:
-```json
-{
-  "id": "comp_user_card_001",
-  "displayName": "UserCard",
-  "properties": {
-    "displayName": {
-      "type": "expression",
-      "expression": "user.firstName + ' ' + user.lastName"
-    },
-    "badgeText": {
-      "type": "customFunction",
-      "functionName": "getUserBadge",
-      "args": ["props.user"]
-    }
-  },
-  "localState": {
-    "isHovered": { "type": "boolean", "default": false }
-  }
-}
-```
+**Characteristics**:
+- No hooks
+- No complex logic
+- Standard props only
+- Conditional styling with ternary
+- Fully functional and testable
 
-**Generated Code**:
+---
+
+### Level 2 (Enhanced) Output 🟡
+
+**With hooks, state, and expressions**:
+
 ```jsx
 import React, { useState, useMemo } from 'react';
-import { getUserBadge } from '../utils/globalFunctions.js';
+import { formatTimeAgo } from '../utils/globalFunctions/user';
 
 /**
- * User profile card with badge
- * @generated Rise MVP v1.0.0
+ * @rise:generated
+ * Level: 2 (Enhanced)
+ * Component: UserCard
+ * Generated: 2025-10-25T10:00:00Z
  */
-export default function UserCard({ user }) {
-  const [isHovered, setIsHovered] = useState(false);
+export function UserCard({ user }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   
-  // Simple expression (sandboxed)
-  const displayName = useMemo(() => 
-    user.firstName + ' ' + user.lastName,
+  const displayName = useMemo(
+    () => user.firstName + ' ' + user.lastName,
     [user.firstName, user.lastName]
   );
   
-  // Custom function (full power)
-  const badgeText = getUserBadge(user);
-  
   return (
-    <div 
-      className={`user-card ${isHovered ? 'hover' : ''}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div onClick={() => setIsExpanded(!isExpanded)}>
       <h2>{displayName}</h2>
-      <span className="badge">{badgeText}</span>
+      {isExpanded && <p>{user.bio}</p>}
     </div>
   );
 }
-
-UserCard.propTypes = {
-  user: PropTypes.shape({
-    firstName: PropTypes.string.isRequired,
-    lastName: PropTypes.string.isRequired
-  }).isRequired
-};
 ```
 
 ---
 
-## MVP vs. Future Comparison
+### Level 3 (Advanced) Output 🔴
 
-### What's in MVP
-✅ **Core Component System**
-- Visual component tree editing
-- Property system (static, expression, custom function, prop)
-- Local state management
-- Basic event handlers
+**With real-time data and AI optimizations**:
 
-✅ **Two-Tier Expression System**
-- Simple expressions (sandboxed JavaScript)
-- Custom functions (full JavaScript power)
-- Global function management with triggers
-
-✅ **AI Integration**
-- Component generation from prompts
-- Code review and suggestions
-- Expression assistance
-
-✅ **React Code Generation**
-- Clean, documented React components
-- Proper TypeScript support (optional)
-- ESLint-compliant output
-
-### What's Deferred
-❌ **Advanced Features**
-- Plugin system implementation
-- Multiple framework support
-- Visual connection editor
-- Step-through debugger
-- Bidirectional sync
-
-❌ **Enterprise Features**
-- Team collaboration
-- Version control integration
-- Advanced deployment
-- Component marketplace
+[Complex example with Supabase, WebSockets, etc.]
+```
 
 ---
 
-## Best Practices for MVP
+### 9. Update Cross-Framework Translation Section
 
-### ✅ DO:
-- **Keep components simple** - avoid deep nesting
-- **Use custom functions** for complex logic
-- **Leverage AI assistance** but always review suggestions
-- **Write clear descriptions** for all components and functions
-- **Test expressions** before applying to components
+**Location**: "Cross-Framework Translation" section
 
-### ❌ DON'T:
-- **Create circular dependencies** between components
-- **Write unsafe expressions** in simple expression fields
-- **Ignore AI security warnings** about custom functions
-- **Create deeply nested component hierarchies**
-- **Use cryptic naming** without descriptions
+**✅ Add at top**:
+
+```markdown
+## Cross-Framework Translation
+
+**Level 1 (MVP)**: React only  
+**Level 2 (Enhanced)**: React + Vue plugin  
+**Level 3 (Advanced)**: All framework plugins
 
 ---
 
-## Migration Strategy
+[existing content]
+```
 
-### Future Plugin Support
-The MVP schema is designed to easily extend for plugin support:
+---
 
-```json
-{
-  "components": {
-    "comp_001": {
-      "framework": "react",
-      "pluginData": {
-        "vue": { /* Vue-specific data when Vue plugin is added */ },
-        "svelte": { /* Svelte-specific data when Svelte plugin is added */ }
+### 10. Add Validation Rules Section
+
+**Location**: After "Property Types" section
+
+**✅ Required Addition**:
+
+```markdown
+## Schema Validation Rules
+
+### Level 1 Validator
+
+```typescript
+class Level1SchemaValidator {
+  validate(schema: ComponentSchema): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    // Only static and prop types allowed
+    for (const prop of Object.values(schema.properties)) {
+      if (!['static', 'prop'].includes(prop.type)) {
+        errors.push({
+          field: prop.name,
+          message: `Property type '${prop.type}' not supported in Level 1`,
+          hint: 'Use type "static" or "prop" only',
+          level: 'ERROR'
+        });
       }
     }
+
+    // No event handlers
+    if (schema.eventHandlers) {
+      errors.push({
+        field: 'eventHandlers',
+        message: 'Event handlers not available in Level 1',
+        hint: 'Event handlers coming in Level 2 (weeks 13-24)',
+        level: 'ERROR'
+      });
+    }
+
+    // No state management
+    if (schema.localState || schema.globalState) {
+      errors.push({
+        field: 'state',
+        message: 'State management not available in Level 1',
+        hint: 'State management coming in Level 2',
+        level: 'ERROR'
+      });
+    }
+
+    // No expressions
+    for (const prop of Object.values(schema.properties)) {
+      if (prop.type === 'expression') {
+        errors.push({
+          field: prop.name,
+          message: 'Expressions not available in Level 1',
+          hint: 'Expressions require security sandbox (Level 2)',
+          level: 'ERROR'
+        });
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      level: 1
+    };
   }
 }
 ```
 
-### Schema Evolution
-```json
-{
-  "schemaVersion": "1.0.0-mvp",
-  "upgradeNotes": [
-    "v1.1.0 will add plugin system",
-    "v1.2.0 will add visual debugging",
-    "v2.0.0 will add team collaboration"
-  ]
-}
+**Implementation**: This validator MUST run before code generation in MVP!
 ```
 
 ---
 
-## Implementation Priority
+## 📝 GLOBAL SEARCH & REPLACE
 
-### Phase 1: Foundation (Weeks 1-2)
-- Basic component CRUD operations
-- Simple property editing
-- Static value and prop support
+### Required Text Replacements:
 
-### Phase 2: Expressions (Weeks 3-4)
-- Simple expression editor and validation
-- Custom function editor
-- Global function management
+1. **Replace all occurrences**:
+   - "Component Schema v1.0.0" → "Component Schema v1.0.0 (Progressive Levels)"
 
-### Phase 3: AI Integration (Weeks 5-6)
-- Component generation from prompts
-- Code review suggestions
-- Expression assistance
+2. **Add to every complex example**:
+   - Add level indicator: `🟢 Level 1 (MVP)` or `🟡 Level 2` or `🔴 Level 3`
 
-### Phase 4: Polish (Weeks 7-8)
-- Error handling and validation
-- Performance optimization
-- Documentation and examples
+3. **Add to every code generation example**:
+   ```jsx
+   /**
+    * @rise:generated
+    * Level: 1 (MVP)  // ← ADD THIS LINE
+    * Component: ComponentName
+    */
+   ```
 
 ---
 
-## Success Criteria
+## ✅ VALIDATION CHECKLIST
 
-### MVP Must Support:
-✅ **Basic Workflows**
-- Create project with 20+ components
-- Edit properties with expressions and custom functions
-- Generate clean React code that compiles and runs
-- Use AI to generate components from natural language
+Before considering COMPONENT_SCHEMA.md complete:
 
-✅ **Quality Standards**
-- Generated code passes ESLint without errors
-- Expression system blocks dangerous operations
-- AI suggestions are relevant and helpful
-- Performance remains responsive with large projects
-
-✅ **Future Readiness**
-- Schema can be extended for plugin system
-- Architecture supports multiple frameworks
-- Component definitions are framework-agnostic
-- Clean separation between manifest and generated code
+- [ ] Schema levels prominently displayed at top
+- [ ] All examples marked with level indicators (🟢🟡🔴)
+- [ ] MVP limitations section added
+- [ ] ChatMessage example replaced with simple Button
+- [ ] Level 1 validator code added
+- [ ] Advanced features clearly marked as Level 3
+- [ ] Cross-references to SCHEMA_LEVELS.md added
+- [ ] Generated code shows level in comments
+- [ ] Property types organized by level
+- [ ] Database/API features marked as Level 3
 
 ---
 
-This simplified component schema enables Rise MVP to deliver core value in 8-10 weeks while maintaining the architectural foundation for future plugin-based extensibility.
+## IMPACT ON OTHER DOCUMENTS
+
+These COMPONENT_SCHEMA.md updates require corresponding changes in:
+
+1. **MVP_ROADMAP.md**:
+   - Remove any references to Level 2/3 features from MVP phase
+   - Align Phase 1 with Level 1 schema only
+
+2. **GETTING_STARTED.md**:
+   - Show only Level 1 examples
+   - Remove expression editor screenshots
+   - Add note about upcoming levels
+
+3. **README.md**:
+   - Update feature matrix with levels
+   - Clarify what's MVP vs post-MVP
+
+4. **EXPRESSION_SYSTEM.md**:
+   - Add prominent "Level 2 Feature" warning at top
+   - Reference SCHEMA_LEVELS.md
 
 ---
 
-**See Also**:
-- [MVP Roadmap](./MVP_ROADMAP.md) - Implementation timeline
-- [Security Model](./SECURITY.md) - Expression safety details
-- [Examples](./EXAMPLES.md) - Real component schemas
-- [Testing Strategy](./TESTING_STRATEGY.md) - Validation approach
+**Priority**: 🚨 **CRITICAL - Must complete before MVP implementation**
+
+**Review Required**: 
+- Lead Developer
+- Product Manager
+- Technical Writer
+
+**Estimated Time**: 6-8 hours to apply all updates
 
 ---
 
 **Last Updated**: October 25, 2025  
-**Schema Version**: 1.0.0-mvp  
-**Status**: 🎯 MVP Ready
+**Status**: 🔴 Pending Implementation

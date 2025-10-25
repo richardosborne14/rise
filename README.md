@@ -1,313 +1,503 @@
 # Rise: Visual Low-Code Builder
 
-> An AI-powered visual low-code development tool that generates clean, maintainable code while providing an intuitive visual interface for component architecture and debugging.
+> An AI-powered visual low-code development tool that generates clean, maintainable code while providing an intuitive visual interface for component architecture.
 
-## Vision
+**Status**: 🏗️ Architecture Complete | **Version**: 0.1.0-alpha | **MVP Timeline**: 14-18 weeks
+
+---
+
+## 🎯 Vision
 
 Rise bridges the gap between AI-assisted coding (like Replit/v0) and visual low-code builders (like Noodl/Bubble). It combines:
 
-- **🎯 User Empowerment**: Custom expressions and global functions give users complete control
+- **🎯 User Empowerment**: Write real JavaScript in expressions and global functions
 - **🤖 AI as Copilot**: Intelligent assistance without taking over - review, suggest, generate
 - **🔓 Zero Lock-in**: Clean code output that developers can take anywhere
-- **🔮 Future-Proof**: Plugin system supports any framework or library
-
-## Key Differentiators
-
-**🎯 For Low-Code Developers**: Build faster with AI help while maintaining full control and understanding of architecture
-
-**🎯 For Developers**: Get AI scaffolding without black-box magic - all generated code is clean, readable, and documented
-
-**🎯 For Teams**: Start prototypes in low-code, graduate to production-ready code without rewrites
-
-## Architecture Highlights
-
-- **Electron Desktop App**: Full-featured development environment
-- **Standard Projects**: Generated apps are normal React/Vue/Svelte projects (no lock-in)
-- **Metadata Layer**: `.lowcode/` folder stores visual editor state alongside standard code
-- **Plugin System**: Framework-agnostic design allows Vue, Svelte, Angular adapters
-- **Bidirectional Sync**: Edit code directly, AI updates visual representation
-
-## The Rise Philosophy
-
-### 🎯 User Empowerment First
-- **Custom JavaScript Expressions**: Click any property and write your own code
-- **Global Functions**: Define reusable logic once, use everywhere
-- **Expression Editor**: Direct code input with autocomplete and validation
-- **Full Control**: Never locked into AI-generated solutions
-
-### 🤖 AI as Your Copilot
-- **Code Review**: AI analyzes your code and suggests improvements
-- **Smart Generation**: AI creates boilerplate, you control the details
-- **User Override**: You can always override any AI suggestion
-- **Learning Partner**: AI explains complex patterns and helps you grow
-
-### 🔓 Zero Vendor Lock-in
-- **Clean Code Output**: Standard React/Vue/Svelte with comments and documentation
-- **Framework Freedom**: Plugin system supports any frontend framework
-- **Standard Tooling**: Works with ESLint, Prettier, TypeScript, Vite, webpack
-- **Deploy Anywhere**: Vercel, Netlify, AWS, or your own infrastructure
-
-### 🔮 Future-Proof Architecture
-- **Plugin Ecosystem**: Community can extend to any framework or library
-- **Schema Evolution**: Built-in migration system for schema updates
-- **Backend Agnostic**: Works with Supabase, Firebase, or custom APIs
-- **Extensible Everything**: Components, styling, deployment, authentication
+- **🔮 Future-Proof**: Plugin system supports any framework or library (React first, others later)
 
 ---
 
-## Documentation
+## 🚀 What's in MVP (Schema Level 1)
 
-### 🏗️ Core Architecture
-- [**Architecture Overview**](./docs/ARCHITECTURE.md) - System design and technology stack
-- [**File Structure Specification**](./docs/FILE_STRUCTURE_SPEC.md) - Project layout and organization
-- [**Component Schema**](./docs/COMPONENT_SCHEMA.md) - Complete JSON manifest specification
+The MVP focuses on **proven core value**: Visual editor → clean code → working app.
 
-### ⚡ Key Features
-- [**Data Flow Model**](./docs/DATA_FLOW.md) - Props, state, and reactive variables
-- [**Expression System**](./docs/EXPRESSION_SYSTEM.md) - Dynamic properties and scripting
-- [**Debugger Design**](./docs/DEBUGGER_DESIGN.md) - Step-through debugging implementation
+### ✅ Included in MVP
+
+**Component Management**:
+- Visual component tree editor
+- Add/edit/delete components
+- Component hierarchy (max 5 levels deep)
+- Basic component properties (static values only)
+
+**Code Generation**:
+- Clean React code generation
+- Vite project scaffolding
+- Standard imports and exports
+- Tailwind CSS integration
+
+**Preview & Development**:
+- Live preview with hot reload
+- Component isolation view
+- Full app preview
+- Error boundary handling
+
+**AI Assistance**:
+- Component generation from prompts
+- Basic template suggestions
+- Cost tracking and budget limits
+
+**Security**:
+- API key encryption (OS keychain)
+- Input sanitization
+- File system restrictions
+- Secure IPC communication
+
+### ❌ NOT in MVP (Coming in Level 2 & 3)
+
+**Deferred to Post-MVP** (see [SCHEMA_LEVELS.md](./docs/SCHEMA_LEVELS.md)):
+- ❌ Expressions & computed properties (Level 2)
+- ❌ State management (Level 2)
+- ❌ Event handlers (Level 2)
+- ❌ Data connections / Database (Level 3)
+- ❌ Real-time features (Level 3)
+- ❌ AI code review (Level 3)
+- ❌ Step debugger (Level 3)
+- ❌ Bidirectional sync (Post-MVP)
+- ❌ TypeScript support (Post-MVP)
+- ❌ Vue/Svelte plugins (Post-MVP)
+
+**Why this scope?**  
+Focused MVP allows us to ship in 14-18 weeks instead of 6+ months, get real user feedback, and build a solid foundation for advanced features.
+
+---
+
+## 🏗️ Architecture Highlights
+
+### Core Design Principles
+
+1. **Schema-Driven Development**
+   - Components defined in clean JSON manifest
+   - Progressive levels: Simple → Enhanced → Advanced
+   - Framework-agnostic core
+
+2. **Security First**
+   - Expression sandboxing (Level 2+)
+   - Plugin isolation
+   - API key encryption
+   - Input validation everywhere
+
+3. **Standard Output**
+   - Generated projects are normal React/Vite apps
+   - No vendor lock-in
+   - Deploy anywhere (Vercel, Netlify, AWS)
+   - Works with standard tooling
+
+4. **AI as Copilot**
+   - User always in control
+   - AI suggests, user decides
+   - Review and override any AI output
+   - Cost tracking and budget controls
+
+### Technology Stack
+
+**Desktop App**:
+- Electron 28+ (cross-platform)
+- React 18+ with TypeScript
+- Zustand (state management)
+- Tailwind CSS (styling)
+
+**Generated Projects**:
+- Vite 5+ (blazing fast builds)
+- React 18+ (hooks, functional components)
+- Standard npm dependencies
+- ESLint + Prettier
+
+**AI Integration**:
+- Anthropic Claude API (primary)
+- OpenAI support (future)
+- Cost tracking and limits
+- Secure key management
+
+---
+
+## 📊 Project Status
+
+### ✅ Phase 0: Foundation (COMPLETE)
+
+All critical architecture documents complete:
+- [x] ARCHITECTURE.md - System design
+- [x] COMPONENT_SCHEMA.md - JSON format specification
+- [x] SCHEMA_LEVELS.md - Progressive feature levels
+- [x] SECURITY_SPEC.md - Security architecture
+- [x] TESTING_STRATEGY.md - Test requirements
+- [x] API_INTEGRATION.md - AI provider integration
+- [x] ERROR_HANDLING.md - Error management
+- [x] MVP_ROADMAP.md - Implementation plan
+- [x] GLOSSARY.md - Terminology reference
+
+### ⏳ Phase 1-5: Implementation (Weeks 3-18)
+
+**Phase 1** (Weeks 3-5): Application Shell
+- Electron app setup
+- Basic UI layout
+- Project management
+- File system operations
+
+**Phase 2** (Weeks 6-8): Component Management
+- Component tree view
+- Property editor
+- Manifest CRUD
+- AI component generation
+
+**Phase 3** (Weeks 9-11): Code Generation & Preview
+- React code generator (Level 1)
+- File generation
+- Preview system
+- Hot reload
+
+**Phase 4** (Weeks 12-14): Core Features Polish
+- Tailwind integration
+- Component library (shadcn/ui basic)
+- AI improvements
+- Bug fixing
+
+**Phase 5** (Weeks 15-18): Testing & Release
+- Comprehensive testing (80%+ coverage)
+- Security audit
+- Documentation
+- First release
+
+---
+
+## 📚 Documentation
+
+### 🏗️ Architecture & Design
+- [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) - System design and technology stack
+- [**SCHEMA_LEVELS.md**](./docs/SCHEMA_LEVELS.md) - Feature progression (Level 1→2→3)
+- [**COMPONENT_SCHEMA.md**](./docs/COMPONENT_SCHEMA.md) - Complete JSON manifest specification
+- [**FILE_STRUCTURE_SPEC.md**](./docs/FILE_STRUCTURE_SPEC.md) - Project layout and organization
+
+### 🔐 Security & Quality
+- [**SECURITY_SPEC.md**](./docs/SECURITY_SPEC.md) - Security architecture and threat model
+- [**TESTING_STRATEGY.md**](./docs/TESTING_STRATEGY.md) - Testing requirements and coverage
+- [**ERROR_HANDLING.md**](./docs/ERROR_HANDLING.md) - Error management strategy
+
+### ⚡ Features & Implementation
+- [**DATA_FLOW.md**](./docs/DATA_FLOW.md) - Props, state, and reactive variables
+- [**EXPRESSION_SYSTEM.md**](./docs/EXPRESSION_SYSTEM.md) - Dynamic properties (Level 2)
+- [**DEBUGGER_DESIGN.md**](./docs/DEBUGGER_DESIGN.md) - Visual debugging (Level 3)
+- [**API_INTEGRATION.md**](./docs/API_INTEGRATION.md) - AI provider integration
 
 ### 🔧 Extensibility
-- [**Plugin System**](./docs/PLUGIN_SYSTEM.md) - Framework adapter interface
-- [**Bidirectional Sync**](./docs/BIDIRECTIONAL_SYNC.md) - Code-to-manifest reverse engineering
+- [**PLUGIN_SYSTEM.md**](./docs/PLUGIN_SYSTEM.md) - Framework adapter interface (Post-MVP)
+- [**BIDIRECTIONAL_SYNC.md**](./docs/BIDIRECTIONAL_SYNC.md) - Code↔Manifest sync (Post-MVP)
 
-### 🚀 Development
-- [**MVP Roadmap**](./docs/MVP_ROADMAP.md) - Phased features and development timeline
-- [**Getting Started**](./docs/GETTING_STARTED.md) - Setup and first run
+### 🚀 Getting Started
+- [**MVP_ROADMAP.md**](./docs/MVP_ROADMAP.md) - Development phases and timeline
+- [**GETTING_STARTED.md**](./docs/GETTING_STARTED.md) - Setup and development workflow
+- [**GLOSSARY.md**](./docs/GLOSSARY.md) - Terminology reference
 
-### 📊 Best Practices & Quality
-- [**Performance Strategy**](./docs/PERFORMANCE.md) - Optimization techniques and benchmarks
-- [**Security Model**](./docs/SECURITY.md) - Two-tier security and expression sandboxing
-- [**Testing Strategy**](./docs/TESTING_STRATEGY.md) - Comprehensive testing approach
-
-### 📚 Learning Resources
-- [**Examples**](./docs/EXAMPLES.md) - Real-world component examples and patterns
-
-**📚 [Complete Documentation Index](./DOCUMENTATION_INDEX.md)** - Navigate all docs efficiently
+**📚 [Complete Documentation Index](./DOCUMENTATION_INDEX.md)**
 
 ---
 
-## Example: Real-World Chat Component
+## 🎨 Example: Simple Button Component
 
-Here's how Rise handles complex components with our hybrid schema approach:
+### Schema Level 1 (MVP)
 
-### Visual Editor
+**Visual Editor**:
 ```
-┌─────────────────────────────────────────┐
-│ ChatMessage Component                   │
-├─────────────────────────────────────────┤
-│ Properties:                             │
-│ ┌─ timeDisplay ─────────────────────────┐│
-│ │ formatTimeAgo(props.message.createdAt)││
-│ │ [Edit Expression] [AI Review]         ││
-│ └───────────────────────────────────────┘│
-│                                         │
-│ Event Handlers:                         │
-│ • onUserClick → Navigate to profile     │
-│ • onBookmark → Save to database         │
-│ • onReply → Show thread input           │
-│                                         │
-│ Data Connections:                       │
-│ • threadComments (Live WebSocket)       │
-│ • reactionCounts (Real-time aggregate)  │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────┐
+│ Button Component                │
+├─────────────────────────────────┤
+│ Properties:                     │
+│ • label: "Click me"  [Static]   │
+│ • disabled: false    [Static]   │
+│                                 │
+│ Styling:                        │
+│ • Classes: btn, btn-primary     │
+└─────────────────────────────────┘
 ```
 
-### Generated React Code
+**Generated Code**:
 ```jsx
-import { formatTimeAgo } from '../utils/globalFunctions.js';
+import React from 'react';
 
 /**
- * Dynamic chat message with user context, reactions, and threading
- * Generated by Rise - Component Schema v1.0.0
+ * @rise:generated
+ * Component: Button
+ * Level: 1 (MVP)
+ * Generated: 2025-10-25T10:00:00Z
  */
-export function ChatMessage({ message, currentUserId }) {
-  // User-defined expression with AI optimization
-  const timeDisplay = useMemo(() => 
-    formatTimeAgo(message.createdAt), [message.createdAt]
-  );
-  
-  const isOwnMessage = useMemo(() => 
-    message.userId === currentUserId, [message.userId, currentUserId]
-  );
-  
-  const handleUserClick = () => {
-    // Navigate to user profile on name click
-    navigate(`/profile/${message.userId}`);
-  };
-  
+export function Button({ label = "Click me", disabled = false }) {
   return (
-    <article 
-      className={`message ${isOwnMessage ? 'own' : 'other'}`}
-      data-testid="chat-message"
+    <button 
+      className="btn btn-primary"
+      disabled={disabled}
     >
-      <UserAvatar userId={message.userId} onClick={handleUserClick} />
-      <span className="time">{timeDisplay}</span>
-      <MessageContent text={message.text} />
-      <ReactionBar messageId={message.id} />
-      <ThreadAccordion messageId={message.id} />
-    </article>
+      {label}
+    </button>
   );
 }
 ```
 
-### User Power Features
-- **Custom Expression**: User wrote `formatTimeAgo(props.message.createdAt)` directly
-- **Global Function**: `formatTimeAgo` is defined once, used everywhere
-- **AI Review**: AI suggested memoization for performance
-- **Real-time Data**: WebSocket connections auto-generated
-- **Clean Output**: Standard React that any developer can extend
+**Key Points**:
+- Clean, readable React code
+- Standard props pattern
+- No complex logic
+- Deployable anywhere
 
 ---
 
-## Schema-Driven Development
+## 🔐 Security Commitment
 
-Rise's component schema is designed for maximum AI understanding while preserving user control:
+Security is **non-negotiable** and built into every layer:
 
-```json
-{
-  "comp_chat_message_001": {
-    "displayName": "ChatMessage",
-    "author": "ai-generated",
-    "userModified": true,
-    "aiDescription": "Dynamic chat message with threading",
-    
-    "properties": {
-      "timeDisplay": {
-        "type": "expression",
-        "expression": "formatTimeAgo(props.message.createdAt)",
-        "author": "user",
-        "userEditable": true,
-        "aiHint": "Shows human-readable time since creation"
-      }
-    },
-    
-    "codeReview": {
-      "aiFindings": ["Performance: Good memoization strategy"],
-      "userAcknowledged": true
-    }
-  }
-}
+### Expression Sandboxing (Level 2+)
+```typescript
+// User expressions run in isolated VM2 sandbox
+const sandbox = new VM({
+  timeout: 100, // ms
+  sandbox: { props, state, global },
+  eval: false,
+  wasm: false
+});
 ```
 
-**Key Features:**
-- 🎯 **Semantic Structure**: AI understands component intent and relationships
-- 👤 **Authorship Tracking**: See what you built vs what AI helped with
-- 🔧 **Expression Freedom**: Write any JavaScript code in properties
-- 🤖 **AI Integration**: Code review, suggestions, and optimization hints
-- 🔌 **Plugin Ready**: Framework plugins interpret schema for any target
+### API Key Protection
+- Stored in OS keychain (keytar)
+- Encrypted with AES-256
+- Never logged or transmitted
+- Cost tracking and budget limits
+
+### Plugin Security (Post-MVP)
+- Plugins run in isolated VM
+- Limited file system access
+- Resource limits (CPU, memory)
+- Code signing (future)
+
+### Input Validation
+- All user input sanitized
+- Path traversal prevention
+- Component name validation
+- Reserved word blocking
+
+**See**: [SECURITY_SPEC.md](./docs/SECURITY_SPEC.md) for complete details
 
 ---
 
-## Current Status
-
-✅ **Architecture Complete** - All core technical decisions finalized and documented
-
-**📋 Recent Milestones:**
-1. ✅ Comprehensive architecture design
-2. ✅ Component schema specification complete
-3. ✅ Plugin system architecture defined
-4. ✅ Expression system with user empowerment
-5. ✅ AI integration strategy finalized
-
-**🚀 Next Phase: MVP Implementation**
-- Begin core Manifest Manager development
-- Implement React plugin as reference
-- Build expression editor with JavaScript support
-- Create AI copilot integration
-- Develop visual component tree editor
-
----
-
-## Technology Stack
-
-### Desktop Application
-- **Framework**: Electron 28+
-- **UI**: React 18+ with TypeScript
-- **State Management**: Zustand (lightweight, reactive)
-- **Editor**: Monaco Editor (VSCode engine)
-- **Styling**: Tailwind CSS
-
-### Code Generation
-- **Target**: Standard Vite + React projects (extensible to Vue/Svelte)
-- **Parser**: Babel (AST manipulation)
-- **Generator**: Framework plugins with semantic interpretation
-- **Quality**: ESLint + Prettier integration
-
-### AI Integration
-- **Primary**: Anthropic Claude API
-- **Features**: Code review, generation, optimization suggestions
-- **Philosophy**: Copilot, not replacement - user always in control
-
----
-
-## Target Users
+## 🎯 Target Users
 
 ### Primary: **Empowered Low-Code Developers**
-- Want speed of visual development with power of code
-- Comfortable with JavaScript but want AI assistance
-- Need clean, maintainable output for long-term projects
+- Want speed of visual tools with power of code
+- Comfortable with JavaScript basics
+- Need clean output for long-term projects
 - Value understanding over black-box solutions
 
 ### Secondary: **Rapid Prototyping Developers**
-- Need quick scaffolding for complex applications  
-- Want AI help with boilerplate but control over logic
-- Require production-ready output that scales
+- Need quick scaffolding for complex apps
+- Want AI help with boilerplate
+- Require production-ready output
 - Looking for modern alternative to traditional low-code
 
 ### Stretch: **No-Code Graduates**
 - Outgrowing traditional no-code platforms
-- Ready to learn real development concepts
-- Want to transition to code without starting from scratch
-- Need gradual learning curve with AI mentorship
+- Ready to learn real development
+- Want gradual learning curve
+- Need AI mentorship
 
 ---
 
-## Community & Contributing
+## 🚧 Current Limitations (MVP)
 
-### 🔌 Plugin Development
-Build support for your favorite framework or library:
-- **Vue Plugin**: Generate Vue 3 composition API components
-- **Svelte Plugin**: Create reactive Svelte components  
-- **Angular Plugin**: Generate standalone Angular components
-- **UI Library Plugins**: shadcn, MUI, Ant Design, Chakra UI
+Be aware of these MVP constraints:
 
-### 📖 Documentation
-Help improve the comprehensive documentation suite:
-- Technical examples and tutorials
-- Real-world use case studies  
-- Plugin development guides
-- Best practices and patterns
+1. **React Only**: Vue, Svelte support in plugin system (post-MVP)
+2. **Static Properties**: No expressions until Level 2
+3. **No State Management**: Coming in Level 2
+4. **No Event Handlers**: Coming in Level 2
+5. **No Database Integration**: Coming in Level 3
+6. **JavaScript Only**: TypeScript support post-MVP
+7. **Manual Code Edits**: Bidirectional sync post-MVP
 
-### 🐛 Issues & Features
-We welcome bug reports, feature requests, and architecture discussions:
-- **GitHub Issues**: Technical bugs and feature requests
-- **Discussions**: Architecture ideas and community feedback
-- **Discord**: Real-time development chat (coming soon)
+**Why?** Focused scope allows us to ship quality MVP in 14-18 weeks vs. 6+ months for everything.
 
 ---
 
-## License
+## 📈 Roadmap
+
+### 🎯 MVP (Weeks 0-18): Schema Level 1
+- Foundation & security
+- Visual component editor
+- React code generation
+- AI-assisted component creation
+- Preview with hot reload
+
+### 🚀 Post-MVP Phase 1 (Weeks 19-30): Schema Level 2
+- Expression system with sandboxing
+- State management (local + global)
+- Event handlers
+- Computed properties
+- Global functions
+
+### 🌟 Post-MVP Phase 2 (Weeks 31-42): Enhanced Features
+- TypeScript support
+- Component library plugins (MUI, Ant Design)
+- Advanced styling system
+- Performance optimization
+
+### 🔮 Future (Weeks 43+): Schema Level 3
+- Plugin system (Vue, Svelte, Angular)
+- Bidirectional sync
+- Step debugger
+- Real-time data connections
+- AI code review
+- Database integration
+
+**See**: [MVP_ROADMAP.md](./docs/MVP_ROADMAP.md) for detailed timeline
+
+---
+
+## 🤝 Contributing
+
+### Development
+Rise is in active development. Ways to contribute:
+
+**Phase 0 (Current)**:
+- Review architecture documents
+- Provide feedback on design decisions
+- Identify potential issues
+
+**Phase 1-5 (Implementation)**:
+- Report bugs and issues
+- Suggest improvements
+- Test features
+- Improve documentation
+
+**Post-MVP**:
+- Build framework plugins
+- Create component libraries
+- Write tutorials and examples
+
+### Documentation
+Help improve docs:
+- Fix typos and clarify explanations
+- Add code examples
+- Create tutorials
+- Translate to other languages
+
+### Community
+- **GitHub Issues**: Bug reports and feature requests
+- **Discussions**: Architecture questions and ideas
+- **Discord**: Real-time chat (coming soon)
+
+---
+
+## 💰 Budget & Resources
+
+### MVP Development Costs
+
+**AI Development** (Cline/Claude):
+- API usage: $800-1,600
+- 70% of implementation work
+
+**Human Developer**:
+- Phase 0: 80 hours ($8,000)
+- Phase 1-4: 180 hours ($18,000)
+- Phase 5: 160 hours ($16,000)
+- Total: 420 hours ($42,000)
+
+**Tools**: ~$200 (mostly free tools)
+
+**Total MVP**: $43,000-45,000
+
+**ROI**: Foundation for Level 2/3, saves months vs. manual development
+
+---
+
+## 📜 License
 
 MIT License - see [LICENSE](./LICENSE) for details
 
 ---
 
-## Getting Started
+## 🙏 Acknowledgments
 
-Ready to explore Rise? Start with our comprehensive guides:
+**Built with**:
+- ⚛️ React - UI library
+- ⚡ Vite - Build tool
+- 🔌 Electron - Desktop framework
+- 🤖 Claude AI - Development assistance
+- 💙 Open Source Community
 
-1. **[📖 Documentation Index](./DOCUMENTATION_INDEX.md)** - Navigate all documentation
-2. **[🏗️ Architecture Overview](./docs/ARCHITECTURE.md)** - Understand the system design  
-3. **[📋 Component Schema](./docs/COMPONENT_SCHEMA.md)** - Learn the JSON manifest format
-4. **[🚀 Getting Started](./docs/GETTING_STARTED.md)** - Set up your development environment
+**Inspired by**:
+- Bubble.io - Visual development
+- Noodl - Node-based UI
+- Webflow - Design tools
+- Replit - AI coding
+- v0 - AI component generation
+
+---
+
+## 📧 Contact
+
+- **Website**: rise-builder.com (coming soon)
+- **Email**: hello@rise-builder.com
+- **GitHub**: github.com/rise-builder
+- **Twitter**: @rise_builder
+
+---
+
+## 🎉 Getting Started
+
+Ready to build? Here's your path:
+
+### For Developers Working on Rise
+
+1. **Read Architecture Docs** (2-3 hours)
+   - ARCHITECTURE.md - System design
+   - SCHEMA_LEVELS.md - Feature levels
+   - SECURITY_SPEC.md - Security requirements
+
+2. **Set Up Environment** (30 min)
+   - Clone repository
+   - Install dependencies
+   - Configure API keys
+
+3. **Start Development** (Follow roadmap)
+   - Phase 0: Review foundation (Week 0-2)
+   - Phase 1: Build app shell (Week 3-5)
+   - Phase 2-5: Implement features (Week 6-18)
+
+### For Users (Post-MVP)
+
+1. **Download Rise** (rise-builder.com/download)
+2. **Follow Tutorial** (30 minutes)
+3. **Create Your First App**
+4. **Deploy Anywhere**
+
+---
+
+## 🌟 The Rise Promise
+
+1. **You Own Your Code**: Generated code is clean, standard, and yours forever
+2. **No Vendor Lock-in**: Deploy anywhere, use any tools
+3. **AI Assists, You Decide**: Full control with intelligent help
+4. **Privacy First**: Your data stays on your machine
+5. **Open & Extensible**: Plugin system for any framework
 
 ---
 
 **Rise: Where AI meets empowerment. Where visual meets code. Where lock-in meets freedom.**
 
-*Building the Tesla of low-code platforms - no compromises, maximum empowerment, unlimited extensibility.*
+*Building the future of low-code development - no compromises, maximum empowerment, unlimited extensibility.*
 
 ---
 
-**Status**: 🏗️ Architecture Complete | **Version**: 0.1.0-alpha | **Last Updated**: October 2025
+**Last Updated**: October 25, 2025  
+**Status**: 🏗️ Phase 0 Complete, Ready for Implementation  
+**Next Milestone**: Begin Phase 1 Development
+
+---
+
+**⭐ Star us on GitHub if you believe in empowering developers!**

