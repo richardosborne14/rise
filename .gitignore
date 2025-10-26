@@ -1,0 +1,172 @@
+# Rise Low-Code Builder - Git Ignore Rules
+# Generated: 2025-10-26
+
+# ============================================
+# Node.js Dependencies
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# ============================================
+# Build Output (TypeScript Compilation)
+# ============================================
+dist/
+build/
+*.tsbuildinfo
+
+# ============================================
+# Test Coverage Reports
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+
+# ============================================
+# Environment Variables & Secrets
+# ============================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.test
+
+# API Keys and Certificates
+*.pem
+*.key
+*.cert
+secrets.json
+
+# ============================================
+# Electron Build Artifacts
+# ============================================
+out/
+release/
+app-builds/
+electron-dist/
+
+# ============================================
+# Operating System Files
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# IDE & Editor Files
+# ============================================
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+
+# Emacs
+\#*\#
+.\#*
+
+# ============================================
+# Log Files
+# ============================================
+*.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# Temporary Files & Caches
+# ============================================
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# ============================================
+# TypeScript
+# ============================================
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
+
+# ============================================
+# Testing
+# ============================================
+.jest-cache/
+
+# ============================================
+# Package Manager Lockfiles (optional - uncomment if needed)
+# ============================================
+# Uncomment if you want to ignore lockfiles
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ============================================
+# Electron-specific
+# ============================================
+.webpack/
+electron-builder.yml
+
+# ============================================
+# Manifest & Generated Files
+# ============================================
+# User-generated low-code projects
+.lowcode/*/
+!.lowcode/.gitkeep
+
+# Generated React components (if output to specific folder)
+# generated/
+
+# ============================================
+# Backup Files
+# ============================================
+*.bak
+*.backup
+*.old
+
+# ============================================
+# Miscellaneous
+# ============================================
+.vscode-test/
+*.vsix
